@@ -1,0 +1,1168 @@
+/* =========================================
+   STUDYPILOT APP.CSS
+   PART 1
+   Dashboard + Global Styling
+========================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+
+    --primary:#37192C;
+    --primary-dark:#2B1222;
+
+    --cream:#FFF3E5;
+    --card:#FFFCF8;
+
+    --gold:#D4AF37;
+
+    --text:#2F2430;
+    --muted:#7A6C72;
+
+    --border:#F0E1D4;
+
+    --shadow:0 12px 30px rgba(55,25,44,.08);
+
+    --shadow-hover:0 20px 40px rgba(55,25,44,.12);
+
+    --radius:24px;
+
+    --transition:.3s ease;
+
+}
+
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:var(--cream);
+
+    color:var(--text);
+
+}
+
+
+
+/* ===========================
+      DASHBOARD LAYOUT
+=========================== */
+
+.dashboard{
+
+    display:flex;
+
+    min-height:100vh;
+
+}
+
+
+
+/* ===========================
+        SIDEBAR
+=========================== */
+
+.sidebar{
+
+    width:260px;
+
+    background:var(--primary);
+
+    color:white;
+
+    display:flex;
+
+    flex-direction:column;
+
+    padding:35px 25px;
+
+    box-shadow:6px 0 18px rgba(0,0,0,.06);
+
+}
+
+.logo-section{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+padding-bottom:30px;
+
+margin-bottom:45px;
+
+border-bottom:1px solid rgba(255,255,255,.15);
+
+}
+
+.sidebar-logo{
+
+    width:44px;
+
+}
+
+.logo-section h2{
+
+    font-family:'Cormorant Garamond',serif;
+
+    font-size:34px;
+
+    font-weight:700;
+
+}
+
+
+
+nav{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+
+nav a{
+
+    text-decoration:none;
+
+    color:white;
+
+    padding:15px 18px;
+
+    border-radius:16px;
+
+    transition:var(--transition);
+
+    font-weight:500;
+
+}
+
+
+
+nav a:hover{
+
+    background:rgba(255,255,255,.10);
+
+    transform:translateX(5px);
+
+}
+
+
+
+.active{
+
+background:rgba(255,255,255,.12);
+
+border-left:4px solid var(--gold);
+
+box-shadow:0 8px 20px rgba(0,0,0,.12);
+
+}
+
+
+
+/* ===========================
+        MAIN CONTENT
+=========================== */
+
+.content{
+
+    flex:1;
+
+    padding:60px 70px;
+
+}
+
+
+
+/* ===========================
+           HERO
+=========================== */
+
+.hero{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.hero h1{
+
+    font-size:44px;
+
+    color:var(--primary);
+
+    font-weight:600;
+
+}
+
+
+
+.hero p{
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+}
+
+
+
+/* ===========================
+          QUOTE
+=========================== */
+
+.quote-section{
+
+    max-width:720px;
+
+    margin-bottom:45px;
+
+}
+
+
+
+.quote-mark{
+
+    font-size:78px;
+
+    color:var(--gold);
+
+    line-height:50px;
+
+}
+
+
+
+.quote-section p{
+
+    margin-left:28px;
+
+    margin-top:8px;
+
+    font-family:'Cormorant Garamond',serif;
+
+    font-size:31px;
+
+    line-height:1.45;
+
+    color:var(--primary);
+
+}
+
+
+
+/* ===========================
+            GRID
+=========================== */
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:2fr 1fr;
+
+    gap:28px;
+
+}
+
+
+
+/* ===========================
+          CARDS
+=========================== */
+
+.focus-card,
+.progress-card,
+.deadline-card{
+
+    background:var(--card);
+
+    border-radius:var(--radius);
+
+    border:1px solid var(--border);
+
+    padding:30px;
+
+    box-shadow:var(--shadow);
+
+    transition:var(--transition);
+
+}
+
+
+
+.focus-card:hover,
+.progress-card:hover,
+.deadline-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:var(--shadow-hover);
+
+}
+
+
+
+.card-title{
+
+    font-size:23px;
+
+    font-weight:600;
+
+    color:var(--primary);
+
+    margin-bottom:22px;
+
+}
+
+
+
+/* ===========================
+        TODAY'S FOCUS
+=========================== */
+
+.focus-card{
+
+    grid-row:span 2;
+
+    min-height:520px;
+
+}
+
+
+
+/* ===========================
+        TASKS
+=========================== */
+
+.task{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    padding:18px 0;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+
+
+.task:last-child{
+
+    border-bottom:none;
+
+}
+
+
+
+/* Functional Checkbox */
+
+.task input[type="checkbox"]{
+
+    width:20px;
+
+    height:20px;
+
+    accent-color:var(--primary);
+
+    cursor:pointer;
+
+}
+
+
+
+.task span{
+
+    flex:1;
+
+    font-size:16px;
+
+    transition:var(--transition);
+
+}
+
+
+
+.task input[type="checkbox"]:checked + span{
+
+    text-decoration:line-through;
+
+    color:var(--muted);
+
+    opacity:.7;
+
+}
+
+
+
+/* ===========================
+       EMPTY STATE
+=========================== */
+
+.empty{
+
+    text-align:center;
+
+    padding:65px 20px;
+
+}
+
+
+
+.empty p{
+
+    font-family:'Cormorant Garamond',serif;
+
+    font-size:25px;
+
+    color:var(--primary);
+
+    margin-bottom:12px;
+
+}
+
+
+
+.empty span{
+
+    color:var(--muted);
+
+}
+
+
+
+/* ===========================
+        PROGRESS
+=========================== */
+
+.progress-bar{
+
+    width:100%;
+
+    height:14px;
+
+    background:#EEE5DC;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+    margin:25px 0;
+
+}
+
+
+
+.progress-fill{
+
+    width:35%;
+
+    height:100%;
+
+    border-radius:50px;
+
+    background:linear-gradient(
+        90deg,
+        var(--primary),
+        #6C3756
+    );
+
+    transition:.5s;
+
+}
+
+
+
+#progressText{
+
+    color:var(--muted);
+
+}
+
+
+
+/* ===========================
+        DEADLINES
+=========================== */
+
+.deadline-card{
+
+    min-height:230px;
+
+}
+
+
+
+.deadline{
+
+    padding:18px 0;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+
+
+.deadline:last-child{
+
+    border:none;
+
+}
+
+
+
+.deadline strong{
+
+    color:var(--primary);
+
+}
+
+
+
+.deadline p{
+
+    margin-top:6px;
+
+    color:var(--muted);
+
+}
+/* =========================================
+        STUDYPILOT APP.CSS
+        PART 2
+        Planner + Shared Components
+========================================= */
+
+
+/* ===========================
+        PLANNER CARD
+=========================== */
+
+.planner-card{
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:var(--radius);
+
+    padding:35px;
+
+    box-shadow:var(--shadow);
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+    margin-bottom:40px;
+
+    transition:var(--transition);
+
+}
+
+.planner-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:var(--shadow-hover);
+
+}
+
+.planner-card h2{
+
+    color:var(--primary);
+
+    font-size:30px;
+
+    font-family:'Cormorant Garamond',serif;
+
+    margin-bottom:10px;
+
+}
+
+
+
+/* ===========================
+        INPUTS
+=========================== */
+
+.planner-card input,
+.planner-card select{
+
+    width:100%;
+
+    padding:16px 18px;
+
+    background:#FFF8F2;
+
+    border:2px solid transparent;
+
+    border-radius:16px;
+
+    font-size:15px;
+
+    color:var(--text);
+
+    outline:none;
+
+    transition:var(--transition);
+
+}
+
+.planner-card input:focus,
+.planner-card select:focus{
+
+    background:white;
+
+    border-color:var(--primary);
+
+}
+
+.planner-card input::placeholder{
+
+    color:#B59FA8;
+
+}
+
+
+
+/* ===========================
+         BUTTON
+=========================== */
+
+.planner-card button{
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:var(--primary);
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:var(--transition);
+
+}
+
+.planner-card button:hover{
+
+    background:var(--primary-dark);
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 25px rgba(55,25,44,.18);
+
+}
+
+.planner-card button:active{
+
+    transform:scale(.98);
+
+}
+
+
+
+/* ===========================
+        TASK LIST
+=========================== */
+
+.allTasks{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+
+
+/* ===========================
+        TASK CARD
+=========================== */
+
+.taskCard{
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    padding:24px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    box-shadow:var(--shadow);
+
+    transition:var(--transition);
+
+}
+
+.taskCard:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:var(--shadow-hover);
+
+}
+
+.left h3{
+
+    color:var(--primary);
+
+    margin-bottom:8px;
+
+    font-size:20px;
+
+}
+
+.left p{
+
+    color:var(--muted);
+
+    font-size:14px;
+
+    margin-top:4px;
+
+}
+
+
+
+/* ===========================
+      PRIORITY BADGES
+=========================== */
+
+.priority{
+
+    display:inline-block;
+
+    margin-top:12px;
+
+    padding:8px 14px;
+
+    border-radius:999px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+}
+
+.low{
+
+    background:#F6EAF2;
+
+    color:#8A4F73;
+
+}
+
+.medium{
+
+    background:#FFF4DA;
+
+    color:#C58A00;
+
+}
+
+.high{
+
+    background:#FFE4E8;
+
+    color:#B3365A;
+
+}
+
+
+
+/* ===========================
+      DELETE BUTTON
+=========================== */
+
+.delete{
+
+    background:#B3365A;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 18px;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-weight:500;
+
+    transition:var(--transition);
+
+}
+
+.delete:hover{
+
+    background:#922849;
+
+    transform:translateY(-2px);
+
+}
+
+
+
+/* ===========================
+       SMALL BUTTONS
+=========================== */
+
+button{
+
+    font-family:'Poppins',sans-serif;
+
+}
+
+
+
+/* ===========================
+        LINKS
+=========================== */
+
+a{
+
+    transition:var(--transition);
+
+}
+
+
+
+/* ===========================
+      SCROLLBAR
+=========================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#F6EBDD;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#A68596;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#7C5B6C;
+
+}
+
+
+
+/* ===========================
+      SELECTION
+=========================== */
+
+::selection{
+
+    background:#D4AF37;
+
+    color:white;
+
+}
+
+
+
+/* ===========================
+      FADE ANIMATION
+=========================== */
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.taskCard,
+.focus-card,
+.progress-card,
+.deadline-card,
+.planner-card{
+
+    animation:fadeUp .5s ease;
+
+}
+
+
+
+/* ===========================
+      RESPONSIVE
+=========================== */
+
+@media(max-width:1000px){
+
+.dashboard{
+
+    flex-direction:column;
+
+}
+
+.sidebar{
+
+    width:100%;
+
+}
+
+.content{
+
+    padding:35px;
+
+}
+
+.dashboard-grid{
+
+    grid-template-columns:1fr;
+
+}
+
+.focus-card{
+
+    grid-row:auto;
+
+    min-height:auto;
+
+}
+
+.taskCard{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:18px;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.hero h1{
+
+    font-size:34px;
+
+}
+
+.quote-section p{
+
+    font-size:24px;
+
+}
+
+.content{
+
+    padding:25px;
+
+}
+
+.planner-card{
+
+    padding:25px;
+
+}
+
+}
+nav a{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+}
+
+.material-symbols-rounded{
+
+font-size:22px;
+
+transition:.3s;
+
+}
+
+nav a:hover .material-symbols-rounded{
+
+transform:scale(1.15);
+
+}
+.planner-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:20px;
+
+margin:20px 0 28px;
+
+}
+
+.input-group{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+}
+
+.input-group label{
+
+font-size:14px;
+
+font-weight:600;
+
+color:var(--primary);
+
+}
+
+.planner-info{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:24px;
+
+margin-bottom:40px;
+
+}
+
+.info-card{
+
+background:var(--card);
+
+padding:28px;
+
+border-radius:24px;
+
+border:1px solid var(--border);
+
+box-shadow:var(--shadow);
+
+transition:.3s;
+
+}
+
+.info-card:hover{
+
+transform:translateY(-5px);
+
+box-shadow:var(--shadow-hover);
+
+}
+
+.info-card h3{
+
+font-size:15px;
+
+color:var(--muted);
+
+font-weight:500;
+
+}
+
+.info-card h1{
+
+font-size:42px;
+
+margin-top:10px;
+
+font-family:'Cormorant Garamond',serif;
+
+color:var(--primary);
+
+}
+
+.section-title{
+
+font-size:28px;
+
+margin-bottom:25px;
+
+font-family:'Cormorant Garamond',serif;
+
+color:var(--primary);
+
+}
+
+.planner-card button{
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+gap:10px;
+
+}

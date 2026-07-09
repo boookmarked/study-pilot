@@ -5,9 +5,10 @@
 }
 
 body{
-    background:#F6F7F3;
+
+    background:#FFF3E5;
     font-family:'Poppins',sans-serif;
-    color:#1F2937;
+    color:#2F2430;
 
     display:flex;
     justify-content:center;
@@ -18,54 +19,88 @@ body{
 }
 
 .container{
+
     width:100%;
     max-width:1200px;
 
     display:flex;
     flex-direction:column;
     align-items:center;
+
     padding:20px;
 
     animation:fadeIn 1s ease;
+
 }
 
+/* ---------------- LOGO ---------------- */
+
 .logo{
+
     width:70px;
     height:auto;
     margin-bottom:5px;
+
+}
+
+.brand{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    margin-bottom:10px;
+
 }
 
 .hero{
+
     text-align:center;
     margin-bottom:25px;
+
 }
 
 .hero h1{
 
     font-family:'Cormorant Garamond',serif;
-
     font-size:52px;
-
     font-weight:700;
+
+}
+
+.study{
+
+    color:#2F2430;
+
+}
+
+.pilot{
+
+    color:#37192C;
 
 }
 
 .tagline{
 
     margin-top:0;
-
     font-size:20px;
-
     font-weight:500;
+    color:#37192C;
 
 }
 
 .description{
+
     width:420px;
     margin:14px auto;
-    color:#6B7280;
+
+    color:#7A6C72;
     line-height:1.5;
+
 }
+
+/* ---------------- LOGIN CARD ---------------- */
+
 .login-card{
 
     width:430px;
@@ -74,63 +109,85 @@ body{
 
     padding:40px;
 
-    border-radius:22px;
+    border-radius:24px;
 
-    box-shadow:0 12px 35px rgba(0,0,0,.12);
+    border:1px solid #F1E2D3;
+
+    box-shadow:0 18px 45px rgba(55,25,44,.10);
 
     display:flex;
-
     flex-direction:column;
-
     gap:18px;
 
-    transition:0.3s ease;
+    transition:.3s ease;
+
 }
+
+.login-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 24px 50px rgba(55,25,44,.16);
+
+}
+
 .login-card h3{
 
     text-align:center;
 
-    color:#1E4D3B;
+    color:#37192C;
 
-    font-size:26px;
+    font-size:28px;
 
     font-weight:600;
+
 }
 
 .login-text{
 
     text-align:center;
 
-    color:#7B7B7B;
+    color:#7A6C72;
 
     margin-bottom:10px;
+
 }
+
+/* ---------------- INPUTS ---------------- */
+
 .login-card input{
 
     padding:16px;
 
     border:none;
 
-    border-radius:12px;
+    border-radius:14px;
 
-    background:#F0F1F2;
+    background:#FFF8F2;
+
+    border:2px solid transparent;
 
     font-size:15px;
 
     outline:none;
 
     transition:.3s;
+
 }
 
 .login-card input:focus{
 
     background:white;
 
-    border:2px solid #1E4D3B;
+    border:2px solid #37192C;
+
 }
+
+/* ---------------- BUTTON ---------------- */
+
 .login-card button{
 
-    background:#1E4D3B;
+    background:#37192C;
 
     color:white;
 
@@ -138,79 +195,65 @@ body{
 
     padding:16px;
 
-    border-radius:12px;
+    border-radius:14px;
 
     font-size:16px;
+
+    font-weight:500;
 
     cursor:pointer;
 
     transition:.3s;
+
 }
+
 .login-card button:hover{
 
-    background:#16392C;
+    background:#2A1121;
 
     transform:translateY(-2px);
+
 }
+
+.login-card button:active{
+
+    transform:scale(.98);
+
+}
+
+/* ---------------- CREATE ACCOUNT ---------------- */
+
 .create-account{
 
     text-align:center;
 
     font-size:14px;
 
-    color:#7B7B7B;
+    color:#7A6C72;
+
 }
 
 .create-account a{
 
-    color:#1E4D3B;
+    color:#37192C;
 
     font-weight:600;
 
     text-decoration:none;
-}
-
-.login-card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 18px 40px rgba(0,0,0,.15);
-}
-.login-card button:active{
-
-    transform:scale(.98);
-
-}
-::placeholder{
-
-    color:#9CA3AF;
-
-}
-.brand{
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:18px;
-
-    margin-bottom:10px;
-
-}
-.study{
-
-    color: #2f2f2f;
 
 }
 
-.pilot{
+.create-account a:hover{
 
-    color:#1E4D3B;
+    color:#D4AF37;
 
 }
+
+/* ---------------- ERROR ---------------- */
+
 .error-message{
 
-    color:#C0392B;
+    color:#B3365A;
 
     font-size:14px;
 
@@ -219,15 +262,25 @@ body{
     display:none;
 
     margin-top:-6px;
-
     margin-bottom:-6px;
 
 }
+
 .input-error{
 
-    border:2px solid #C0392B !important;
+    border:2px solid #B3365A !important;
 
 }
+
+/* ---------------- PLACEHOLDER ---------------- */
+
+::placeholder{
+
+    color:#B9A7AE;
+
+}
+
+/* ---------------- ANIMATION ---------------- */
 
 @keyframes fadeIn{
 
