@@ -248,11 +248,7 @@ if(deadline){
 // PLANNER
 // ======================
 
-const addButton=document.getElementById("addTask");
-
-if(addButton){
-
-const renderTasks=()=>{
+function renderTasks(){
 
 const container=document.getElementById("allTasks");
 
@@ -297,6 +293,12 @@ Delete
 });
 
 }
+
+const addButton=document.getElementById("addTask");
+
+if(addButton){
+
+
 
 renderTasks();
 updatePlannerStats();
@@ -376,19 +378,19 @@ function updatePlannerStats(){
 
 function deleteTask(index){
 
-tasks.splice(index,1);
+    tasks.splice(index,1);
 
-localStorage.setItem(
+    localStorage.setItem(
+        "tasks",
+        JSON.stringify(tasks)
+    );
 
-"tasks",
-
-JSON.stringify(tasks)
-
-);
-
-location.reload();
+    renderTasks();
+    updatePlannerStats();
+    updateProgress();
 
 }
+
 function toggleTask(index){
 
 tasks[index].completed = !tasks[index].completed;
@@ -401,6 +403,26 @@ JSON.stringify(tasks)
 
 );
 
-location.reload();
+updateProgress();
+
+}
+function updateProgress(){
+
+    const fill = document.getElementById("progressFill");
+    const text = document.getElementById("progressText");
+
+    if(!fill || !text) return;
+
+    const completed =
+        tasks.filter(task => task.completed).length;
+
+    const percent =
+        tasks.length === 0
+        ? 0
+        : Math.round(completed / tasks.length * 100);
+
+    fill.style.width = percent + "%";
+
+    text.textContent = `${percent}% Completed`;
 
 }

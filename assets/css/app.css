@@ -1166,3 +1166,25 @@ justify-content:center;
 gap:10px;
 
 }
+.quote-section{
+
+    padding-left:10px;
+
+    border-left:4px solid var(--gold);
+
+}
+.progress-fill{
+
+    animation:grow 1s ease;
+
+}
+
+@keyframes grow{
+
+from{
+
+width:0;
+
+}
+
+}
