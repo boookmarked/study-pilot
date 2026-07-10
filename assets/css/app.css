@@ -1188,3 +1188,750 @@ width:0;
 }
 
 }
+/* =====================================================
+                SUBJECTS PAGE
+===================================================== */
+
+.subjectCard{
+
+    background:#FCFCFA;
+    border:1px solid rgba(181,126,220,.15);
+    border-radius:22px;
+    padding:25px;
+    box-shadow:0 8px 20px rgba(0,0,0,.05);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    transition:.3s;
+}
+
+.subjectCard:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 15px 30px rgba(0,0,0,.08);
+
+}
+
+.subjectLeft{
+
+    flex:1;
+
+}
+
+.subjectTop{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+.subjectTop h2{
+
+    color:#5C3B73;
+
+    font-size:24px;
+
+}
+
+.subjectDate{
+
+    color:#7B7B7B;
+
+    font-size:14px;
+
+    margin-bottom:20px;
+
+}
+
+/* ================= PROGRESS ================= */
+
+.subjectProgress{
+
+    width:100%;
+
+    height:12px;
+
+    background:#ECE6F2;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+    margin:14px 0;
+
+}
+
+.subjectFill{
+
+    height:100%;
+
+    border-radius:50px;
+
+    background:linear-gradient(
+        90deg,
+        #7D4F9F,
+        #B57EDC
+    );
+
+    transition:.4s;
+
+}
+
+.progressText{
+
+    font-size:14px;
+
+    color:#666;
+
+}
+
+/* ================= BADGES ================= */
+
+.subjectBadge{
+
+    padding:7px 15px;
+
+    border-radius:50px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    display:inline-block;
+
+    margin-top:14px;
+
+}
+
+.easy{
+
+    background:#DDF7E6;
+
+    color:#2E7D32;
+
+}
+
+.medium{
+
+    background:#FFF1CF;
+
+    color:#A86B00;
+
+}
+
+.hard{
+
+    background:#FFE0E5;
+
+    color:#B4233C;
+
+}
+
+/* ================= RIGHT SIDE ================= */
+
+.subjectRight{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    margin-left:25px;
+
+}
+
+.subjectRight button{
+
+    border:none;
+
+    cursor:pointer;
+
+    padding:11px 20px;
+
+    border-radius:12px;
+
+    font-size:14px;
+
+    transition:.3s;
+
+}
+
+.editSubject{
+
+    background:#7D4F9F;
+
+    color:white;
+
+}
+
+.editSubject:hover{
+
+    background:#6C408D;
+
+}
+
+.deleteSubject{
+
+    background:#D9534F;
+
+    color:white;
+
+}
+
+.deleteSubject:hover{
+
+    background:#C9302C;
+
+}
+
+/* ================= EMPTY ================= */
+
+.subjectEmpty{
+
+    text-align:center;
+
+    padding:70px 20px;
+
+}
+
+.subjectEmpty span{
+
+    font-size:75px;
+
+    color:#B57EDC;
+
+}
+
+.subjectEmpty h2{
+
+    margin-top:18px;
+
+    color:#5C3B73;
+
+    font-family:'Cormorant Garamond',serif;
+
+    font-size:34px;
+
+}
+
+.subjectEmpty p{
+
+    margin-top:10px;
+
+    color:#777;
+
+    font-size:16px;
+
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+.subjectCard{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+}
+
+.subjectRight{
+
+    width:100%;
+
+    margin-top:20px;
+
+    margin-left:0;
+
+    flex-direction:row;
+
+}
+
+.subjectRight button{
+
+    flex:1;
+
+}
+
+}
+/* =======================================================
+                    ANALYTICS PAGE
+======================================================= */
+
+.analyticsGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:25px;
+
+    margin-top:30px;
+
+}
+
+.analyticsCard{
+
+    background:#FCFCFA;
+
+    border-radius:22px;
+
+    padding:28px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+
+    border:1px solid rgba(125,79,159,.12);
+
+    transition:.3s;
+
+}
+
+.analyticsCard:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+}
+
+.analyticsCard h2{
+
+    color:#5C3B73;
+
+    margin-bottom:22px;
+
+    font-size:24px;
+
+}
+
+/* =============================
+      Overall Progress
+============================= */
+
+#overallProgressText{
+
+    margin-top:15px;
+
+    font-size:18px;
+
+    color:#666;
+
+    font-weight:600;
+
+}
+
+/* =============================
+      Subject Progress
+============================= */
+
+.subjectProgressRow{
+
+    margin-bottom:20px;
+
+}
+
+.subjectProgressRow:last-child{
+
+    margin-bottom:0;
+
+}
+
+.subjectProgressHeader{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-bottom:8px;
+
+}
+
+.subjectProgressHeader span{
+
+    color:#5C3B73;
+
+    font-weight:600;
+
+}
+
+.subjectProgressBar{
+
+    width:100%;
+
+    height:10px;
+
+    background:#ECE6F2;
+
+    border-radius:50px;
+
+    overflow:hidden;
+
+}
+
+.subjectProgressFill{
+
+    height:100%;
+
+    border-radius:50px;
+
+    background:linear-gradient(
+        90deg,
+        #7D4F9F,
+        #B57EDC
+    );
+
+    transition:.4s;
+
+}
+
+/* =============================
+      Upcoming Exams
+============================= */
+
+.examItem{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:15px 0;
+
+    border-bottom:1px solid #EEE;
+
+}
+
+.examItem:last-child{
+
+    border-bottom:none;
+
+}
+
+.examSubject{
+
+    font-weight:600;
+
+    color:#5C3B73;
+
+}
+
+.examDays{
+
+    color:#A855F7;
+
+    font-weight:600;
+
+}
+
+/* =============================
+        Study Insight
+============================= */
+
+#studyInsight{
+
+    font-size:17px;
+
+    line-height:1.8;
+
+    color:#555;
+
+}
+
+/* =============================
+        Study Score
+============================= */
+
+#studyScore{
+
+    color:#7D4F9F;
+
+    font-size:42px;
+
+}
+
+/* =============================
+        Empty States
+============================= */
+
+.analyticsEmpty{
+
+    text-align:center;
+
+    color:#777;
+
+    padding:45px 15px;
+
+}
+
+.analyticsEmpty span{
+
+    font-size:60px;
+
+    display:block;
+
+    margin-bottom:12px;
+
+}
+
+/* =============================
+        Responsive
+============================= */
+
+@media(max-width:900px){
+
+.analyticsGrid{
+
+grid-template-columns:1fr;
+
+}
+
+}
+/* ======================================================
+                    SETTINGS PAGE
+====================================================== */
+
+.settingsCard{
+
+    background:#FCFCFA;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    margin-bottom:30px;
+
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+
+    border:1px solid rgba(125,79,159,.12);
+
+}
+
+.settingsCard h2{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:#5C3B73;
+
+    margin-bottom:25px;
+
+    font-size:26px;
+
+}
+
+.settingsCard h2 .material-symbols-rounded{
+
+    font-size:30px;
+
+    color:#A855F7;
+
+}
+
+/* =========================
+        INPUT ROWS
+========================= */
+
+.settingRow{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    margin-bottom:22px;
+
+}
+
+.settingRow label{
+
+    color:#555;
+
+    font-weight:500;
+
+    font-size:15px;
+
+}
+
+.settingRow input,
+.settingRow select{
+
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#F7F3FA;
+
+    font-size:15px;
+
+    outline:none;
+
+    transition:.3s;
+
+}
+
+.settingRow input:focus,
+.settingRow select:focus{
+
+    background:white;
+
+    border:2px solid #A855F7;
+
+}
+
+/* =========================
+        BUTTONS
+========================= */
+
+.primaryButton{
+
+    margin-top:10px;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    background:linear-gradient(
+        90deg,
+        #7D4F9F,
+        #B57EDC
+    );
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.primaryButton:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 10px 20px rgba(125,79,159,.25);
+
+}
+
+.dangerButton{
+
+    width:100%;
+
+    margin-top:15px;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#FBECEC;
+
+    color:#C0392B;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.dangerButton:hover{
+
+    background:#F7D9D9;
+
+    transform:translateY(-2px);
+
+}
+
+/* =========================
+        ABOUT
+========================= */
+
+.settingsCard p{
+
+    line-height:1.8;
+
+    color:#666;
+
+    font-size:15px;
+
+}
+
+.settingsCard b{
+
+    color:#5C3B73;
+
+}
+
+/* =========================
+      SETTINGS ANIMATION
+========================= */
+
+.settingsCard{
+
+    transition:.3s;
+
+}
+
+.settingsCard:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+}
+
+/* =========================
+      MOBILE
+========================= */
+
+@media(max-width:768px){
+
+.settingsCard{
+
+padding:22px;
+
+}
+
+.settingsCard h2{
+
+font-size:22px;
+
+}
+
+.primaryButton,
+.dangerButton{
+
+width:100%;
+
+}
+
+}
