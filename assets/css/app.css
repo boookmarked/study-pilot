@@ -1935,3 +1935,57 @@ width:100%;
 }
 
 }
+
+/* ===========================
+SMART STUDY PLAN
+=========================== */
+
+#studyPlan{
+
+display:flex;
+
+flex-direction:column;
+
+gap:18px;
+
+}
+
+.planCard{
+
+background:#FCFCFA;
+
+border-left:6px solid #7D4F9F;
+
+padding:22px;
+
+border-radius:18px;
+
+box-shadow:0 6px 18px rgba(0,0,0,.05);
+
+}
+
+.planCard h3{
+
+color:#5C3B73;
+
+margin-bottom:10px;
+
+}
+
+.planInfo{
+
+color:#666;
+
+margin:5px 0;
+
+}
+
+.planHours{
+
+margin-top:12px;
+
+font-weight:600;
+
+color:#7D4F9F;
+
+}

@@ -44,6 +44,14 @@ class="sidebar-logo">
 
 Dashboard
 
+<a href="subjects.html">
+
+<span class="material-symbols-rounded">menu_book</span>
+
+Subjects
+
+</a>
+
 </a>
 
 <a href="planner.html" class="active">
@@ -51,14 +59,6 @@ Dashboard
 <span class="material-symbols-rounded">edit_calendar</span>
 
 Planner
-
-</a>
-
-<a href="subjects.html">
-
-<span class="material-symbols-rounded">menu_book</span>
-
-Subjects
 
 </a>
 
@@ -78,7 +78,7 @@ Settings
 
 </a>
 
-<a href="../index.html">
+<a href="#" onclick="logout()">
 
 <span class="material-symbols-rounded">logout</span>
 
@@ -210,7 +210,43 @@ Create Task
 </section>
 
 
+<section class="planner-card">
 
+    <h2>✨ Smart Study Planner</h2>
+
+    <p>
+        Let StudyPilot decide what deserves your attention today.
+    </p>
+
+    <button id="generatePlan">
+
+        Generate Today's Plan
+
+    </button>
+
+</section>
+
+<section class="planner-card">
+
+    <h2>Today's Study Plan</h2>
+
+    <div id="studyPlan">
+
+        <div class="empty">
+
+            🌱
+
+            <p>No study plan generated.</p>
+
+            <span>
+                Click "Generate Today's Plan"
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
 <section>
 
 <h2 class="section-title">

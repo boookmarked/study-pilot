@@ -1,3 +1,9 @@
+if(
+    !sessionStorage.getItem("loggedIn")
+){
+    window.location.href="../index.html";
+}
+
 // ===============================
 // GREETING
 // ===============================
@@ -1161,5 +1167,280 @@ if(resetBtn){
         }
 
     };
+
+}
+// ======================================
+// SMART STUDY PLANNER
+// ======================================
+
+const generatePlanBtn =
+document.getElementById("generatePlan");
+
+if(generatePlanBtn){
+
+generatePlanBtn.onclick =
+generateStudyPlan;
+
+}
+
+function generateStudyPlan(){
+
+const container =
+document.getElementById("studyPlan");
+
+if(!container) return;
+
+container.innerHTML="";
+
+if(subjects.length===0){
+
+container.innerHTML=`
+
+<div class="empty">
+
+📚
+
+<p>No subjects found.</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+let plan=[];
+
+const today=new Date();
+
+subjects.forEach(subject=>{
+
+const remaining=
+subject.total-subject.completed;
+
+if(remaining<=0){
+
+return;
+
+}
+
+const examDate=
+new Date(subject.exam);
+
+let daysLeft=Math.ceil(
+
+(examDate-today)
+
+/
+
+(1000*60*60*24)
+
+);
+
+if(daysLeft<1){
+
+daysLeft=1;
+
+}
+
+let urgency;
+
+if(daysLeft<=2){
+
+urgency=5;
+
+}
+
+else if(daysLeft<=5){
+
+urgency=4;
+
+}
+
+else if(daysLeft<=10){
+
+urgency=3;
+
+}
+
+else{
+
+urgency=2;
+
+}
+
+let difficulty;
+
+switch(subject.difficulty){
+
+case "Hard":
+
+difficulty=3;
+
+break;
+
+case "Medium":
+
+difficulty=2;
+
+break;
+
+default:
+
+difficulty=1;
+
+}
+
+let workload;
+
+if(remaining>=15){
+
+workload=3;
+
+}
+
+else if(remaining>=8){
+
+workload=2;
+
+}
+
+else{
+
+workload=1;
+
+}
+
+const score=
+
+urgency+
+
+difficulty+
+
+workload;
+
+const chaptersToday=
+
+Math.max(
+
+1,
+
+Math.ceil(
+
+remaining/daysLeft
+
+)
+
+);
+
+const hours=
+
+(chaptersToday*
+
+(difficulty==3?1.5:
+
+difficulty==2?1:
+
+0.75)
+
+).toFixed(1);
+
+plan.push({
+
+name:subject.name,
+
+score,
+
+chaptersToday,
+
+hours,
+
+difficulty:subject.difficulty
+
+});
+
+});
+plan.sort((a,b)=>b.score-a.score);
+
+plan=plan.slice(0,3);
+
+if(plan.length===0){
+
+container.innerHTML=`
+
+<div class="empty">
+
+🎉
+
+<p>Everything is completed.</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+plan.forEach(subject=>{
+
+container.innerHTML+=`
+
+<div class="planCard">
+
+<h3>
+
+📖 ${subject.name}
+
+</h3>
+
+<p class="planInfo">
+
+Today's Goal:
+<strong>
+
+${subject.chaptersToday}
+
+chapter(s)
+
+</strong>
+
+</p>
+
+<p class="planInfo">
+
+Difficulty:
+
+${subject.difficulty}
+
+</p>
+
+<div class="planHours">
+
+⏳
+
+${subject.hours}
+
+hours recommended
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+// ===============================
+// LOGOUT
+// ===============================
+
+function logout(){
+
+    sessionStorage.removeItem("loggedIn");
+
+    window.location.href="../index.html";
 
 }
