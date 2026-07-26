@@ -20,7 +20,7 @@ if(greeting){
 
 );
 
-    const name = currentUser?.name || "";
+    const greetingName = currentUser?.name?.split(" ")[0] || "";
 
 
 
@@ -45,13 +45,7 @@ if(greeting){
     }
 
     greeting.textContent =
-
-    name
-
-    ? `${greet}, ${name} 🌿`
-
-    : `${greet} 🌿`;
-
+`${greet}, ${greetingName} 🌿`;
 }
 
 
@@ -1058,13 +1052,27 @@ function saveSettings(){
 
     };
 
-    localStorage.setItem(
+    const currentUser = JSON.parse(
 
-        "settings",
+    sessionStorage.getItem("currentUser")
 
-        JSON.stringify(settings)
+);
 
-    );
+let allSettings = JSON.parse(
+
+    localStorage.getItem("allSettings")
+
+) || {};
+
+allSettings[currentUser.email] = settings;
+
+localStorage.setItem(
+
+    "allSettings",
+
+    JSON.stringify(allSettings)
+
+);
 
     alert("Preferences saved successfully!");
 
@@ -1078,11 +1086,21 @@ function saveSettings(){
 
 function loadSettings(){
 
-    const settings = JSON.parse(
+    const currentUser = JSON.parse(
 
-        localStorage.getItem("settings")
+        sessionStorage.getItem("currentUser")
 
     );
+
+    const allSettings = JSON.parse(
+
+        localStorage.getItem("allSettings")
+
+    ) || {};
+
+    const settings =
+
+        allSettings[currentUser.email];
 
     if(!settings) return;
 
