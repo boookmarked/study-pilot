@@ -1,8 +1,9 @@
-
-
 // ===============================
 // LOGIN
 // ===============================
+
+const admin = "admin"
+const adminpass = 'admin'
 
 const loginBtn = document.getElementById("loginBtn");
 
@@ -11,70 +12,98 @@ if(loginBtn){
     loginBtn.onclick = () => {
 
         const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
+        const passwordInput = document.getElementById("password");
 
-const email = emailInput.value.trim();
-const password = passwordInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
 
         const error = document.getElementById("error-message");
 
-        const user = JSON.parse(localStorage.getItem("user"));
+        const users = JSON.parse(localStorage.getItem("users")) || [];
 
         emailInput.classList.remove("input-error");
-passwordInput.classList.remove("input-error");
+        passwordInput.classList.remove("input-error");
 
-if(email===""){
+        if(email===""){
+            emailInput.classList.add("input-error");
+        }
 
-    emailInput.classList.add("input-error");
+        if(password===""){
+            passwordInput.classList.add("input-error");
+        }
 
-}
+// Empty fields
+if(email === "" || password === ""){
 
-if(password===""){
-
-    passwordInput.classList.add("input-error");
-
-}
-
-if(email==="" || password===""){
-
-    error.textContent =
-    "Please enter both email and password.";
+    error.textContent = "Please enter both email and password.";
 
     return;
 
 }
 
-        if(!user){
+// Admin Login
+if(email === admin && password === adminpass){
 
-            error.textContent =
-            "No account found. Please create one first.";
+    sessionStorage.setItem("loggedIn","true");
 
-            return;
+    window.location.href = "pages/dashboard.html";
 
-        }
+    return;
 
-        if(
-            email === user.email &&
-            password === user.password
-        ){
+}
 
-            sessionStorage.setItem("loggedIn","true");
+const foundUser = users.find(
 
-            window.location.href = "pages/dashboard.html";
+    user => user.email === email
 
-        }
+);
 
-        else{
+if(!foundUser){
 
-            error.textContent =
-            "Incorrect email or password.";
+    error.textContent =
 
-        }
+    "No account exists with this email.";
+
+    emailInput.classList.add("input-error");
+
+    return;
+
+}
+
+if(foundUser.password !== password){
+
+    error.textContent =
+
+    "Incorrect password.";
+
+    passwordInput.classList.add("input-error");
+
+    return;
+
+}
+
+sessionStorage.setItem(
+
+    "loggedIn",
+
+    "true"
+
+);
+
+// Store current logged in user
+sessionStorage.setItem(
+
+    "currentUser",
+
+    JSON.stringify(foundUser)
+
+);
+
+window.location.href="pages/dashboard.html";
 
     };
 
 }
-
 
 
 // ===============================
@@ -87,22 +116,12 @@ if(signupBtn){
 
     signupBtn.onclick = () => {
 
-        const name =
-        document.getElementById("name").value.trim();
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirmPassword").value;
 
-        const email =
-        document.getElementById("email").value.trim();
-
-        const password =
-        document.getElementById("password").value;
-
-        const confirm =
-        document.getElementById("confirmPassword").value;
-
-        const error =
-        document.getElementById("signup-error");
-
-
+        const error = document.getElementById("signup-error");
 
         if(
             name === "" ||
@@ -110,64 +129,54 @@ if(signupBtn){
             password === "" ||
             confirm === ""
         ){
-
-            error.textContent =
-            "Please fill all the fields.";
-
+            error.textContent = "Please fill all the fields.";
             return;
-
         }
-
-
 
         if(password !== confirm){
-
-            error.textContent =
-            "Passwords do not match.";
-
+            error.textContent = "Passwords do not match.";
             return;
-
         }
 
+       let users = JSON.parse(localStorage.getItem("users")) || [];
 
+// Check if email already exists
+const existingUser = users.find(user => user.email === email);
 
-        if(localStorage.getItem("user")){
+if(existingUser){
 
-            error.textContent =
-            "An account already exists on this browser.";
+    error.textContent =
+    "An account with this email already exists.";
 
-            return;
+    return;
 
-        }
+}
 
+// Create new user
+users.push({
 
+    name,
+    email,
+    password
 
-        const user = {
+});
 
-            name,
-            email,
-            password
+localStorage.setItem(
 
-        };
+    "users",
 
+    JSON.stringify(users)
 
+);
 
-        localStorage.setItem(
-            "user",
-            JSON.stringify(user)
-        );
+alert("Account created successfully!");
 
-
-
-        alert("Account created successfully!");
-
-
-
-        window.location.href = "index.html";
+window.location.href="index.html";
 
     };
 
 }
+
 
 // ===============================
 // REMOVE ERRORS WHILE TYPING
@@ -179,22 +188,15 @@ inputs.forEach(input=>{
 
     input.addEventListener("input",()=>{
 
-        const loginError =
-        document.getElementById("error-message");
-
-        const signupError =
-        document.getElementById("signup-error");
+        const loginError = document.getElementById("error-message");
+        const signupError = document.getElementById("signup-error");
 
         if(loginError){
-
             loginError.textContent="";
-
         }
 
         if(signupError){
-
             signupError.textContent="";
-
         }
 
         input.classList.remove("input-error");

@@ -5,279 +5,184 @@
 }
 
 body{
-
     background:#FFF3E5;
     font-family:'Poppins',sans-serif;
     color:#2F2430;
-
     display:flex;
     justify-content:center;
     align-items:center;
-
     min-height:100vh;
-
 }
 
 .container{
-
     width:100%;
     max-width:1200px;
-
     display:flex;
     flex-direction:column;
     align-items:center;
-
     padding:20px;
-
     animation:fadeIn 1s ease;
-
 }
 
 /* ---------------- LOGO ---------------- */
 
 .logo{
-
     width:70px;
     height:auto;
     margin-bottom:5px;
-
 }
 
 .brand{
-
     display:flex;
     align-items:center;
     justify-content:center;
     gap:18px;
     margin-bottom:10px;
-
 }
 
 .hero{
-
     text-align:center;
     margin-bottom:25px;
-
 }
 
 .hero h1{
-
     font-family:'Cormorant Garamond',serif;
     font-size:52px;
     font-weight:700;
-
 }
 
 .study{
-
     color:#2F2430;
-
 }
 
 .pilot{
-
     color:#37192C;
-
 }
 
 .tagline{
-
     margin-top:0;
     font-size:20px;
     font-weight:500;
     color:#37192C;
-
 }
 
 .description{
-
     width:420px;
     margin:14px auto;
-
     color:#7A6C72;
     line-height:1.5;
-
 }
 
 /* ---------------- LOGIN CARD ---------------- */
 
 .login-card{
-
     width:430px;
-
     background:white;
-
     padding:40px;
-
     border-radius:24px;
-
     border:1px solid #F1E2D3;
-
     box-shadow:0 18px 45px rgba(55,25,44,.10);
-
     display:flex;
     flex-direction:column;
     gap:18px;
-
     transition:.3s ease;
-
 }
 
 .login-card:hover{
-
     transform:translateY(-5px);
-
     box-shadow:0 24px 50px rgba(55,25,44,.16);
-
 }
 
 .login-card h3{
-
     text-align:center;
-
     color:#37192C;
-
     font-size:28px;
-
     font-weight:600;
-
 }
 
 .login-text{
-
     text-align:center;
-
     color:#7A6C72;
-
     margin-bottom:10px;
-
 }
 
 /* ---------------- INPUTS ---------------- */
 
 .login-card input{
-
     padding:16px;
-
     border:none;
-
     border-radius:14px;
-
     background:#FFF8F2;
-
     border:2px solid transparent;
-
     font-size:15px;
-
     outline:none;
-
     transition:.3s;
-
 }
 
 .login-card input:focus{
-
     background:white;
-
     border:2px solid #37192C;
-
 }
 
 /* ---------------- BUTTON ---------------- */
 
 .login-card button{
-
     background:#37192C;
-
     color:white;
-
     border:none;
-
     padding:16px;
-
     border-radius:14px;
-
     font-size:16px;
-
     font-weight:500;
-
     cursor:pointer;
-
     transition:.3s;
-
 }
 
 .login-card button:hover{
-
     background:#2A1121;
-
     transform:translateY(-2px);
-
 }
 
 .login-card button:active{
-
     transform:scale(.98);
-
 }
 
 /* ---------------- CREATE ACCOUNT ---------------- */
 
 .create-account{
-
     text-align:center;
-
     font-size:14px;
-
     color:#7A6C72;
-
 }
 
 .create-account a{
-
     color:#37192C;
-
     font-weight:600;
-
     text-decoration:none;
-
 }
 
 .create-account a:hover{
-
     color:#D4AF37;
-
 }
 
 /* ---------------- ERROR ---------------- */
 
 .error-message{
-
     color:#B3365A;
-
     font-size:14px;
-
     text-align:center;
-
-    display:none;
-
     margin-top:-6px;
     margin-bottom:-6px;
-
 }
 
 .input-error{
-
     border:2px solid #B3365A !important;
-
 }
 
 /* ---------------- PLACEHOLDER ---------------- */
 
 ::placeholder{
-
     color:#B9A7AE;
-
 }
 
 /* ---------------- ANIMATION ---------------- */
@@ -285,17 +190,13 @@ body{
 @keyframes fadeIn{
 
     from{
-
         opacity:0;
         transform:translateY(25px);
-
     }
 
     to{
-
         opacity:1;
         transform:translateY(0);
-
     }
 
 }

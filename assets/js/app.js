@@ -14,9 +14,15 @@ if(greeting){
 
     const hour = new Date().getHours();
 
-    const settings = JSON.parse(localStorage.getItem("settings"));
+    const currentUser = JSON.parse(
 
-    const name = settings?.name || "";
+    sessionStorage.getItem("currentUser")
+
+);
+
+    const name = currentUser?.name || "";
+
+
 
     let greet="";
 
@@ -1440,6 +1446,8 @@ hours recommended
 function logout(){
 
     sessionStorage.removeItem("loggedIn");
+
+    sessionStorage.removeItem("currentUser");
 
     window.location.href="../index.html";
 
