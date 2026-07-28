@@ -337,6 +337,10 @@ const date=document.getElementById("taskDate").value;
 
 const priority=document.getElementById("priority").value;
 
+const hoursInput=document.getElementById("taskHours");
+
+const estimatedHours=hoursInput ? parseFloat(hoursInput.value) : NaN;
+
 if(title.trim()==="" || date===""){
 
 alert("Please enter both task name and due date.");
@@ -355,7 +359,9 @@ priority,
 
 completed:false,
 
-focus:false
+focus:false,
+
+estimatedHours: isNaN(estimatedHours) ? null : estimatedHours
 
 });
 
@@ -368,6 +374,10 @@ JSON.stringify(tasks)
 );
 
 document.getElementById("taskTitle").value="";
+
+if(hoursInput){
+hoursInput.value="";
+}
 
 renderTasks();
 updatePlannerStats();
@@ -1194,53 +1204,147 @@ if(resetBtn){
 
 }
 // ======================================
-// SMART STUDY PLANNER
+// SMART STUDY SCHEDULER
+// (single reusable source of truth —
+// Dashboard, Planner and Analytics will
+// all read from buildStudyPlan())
 // ======================================
 
-const generatePlanBtn =
-document.getElementById("generatePlan");
+function getDaysRemaining(dateString){
 
-if(generatePlanBtn){
+const today=new Date();
+today.setHours(0,0,0,0);
 
-generatePlanBtn.onclick =
-generateStudyPlan;
+const target=new Date(dateString);
+target.setHours(0,0,0,0);
+
+return Math.round(
+(target-today)/(1000*60*60*24)
+);
 
 }
 
-function generateStudyPlan(){
+function getDeadlineScore(dateString){
 
-const container =
-document.getElementById("studyPlan");
+const diffDays=getDaysRemaining(dateString);
 
-if(!container) return;
+if(diffDays<0){
+return 150;
+}
 
-container.innerHTML="";
+if(diffDays===0){
+return 100;
+}
 
-if(subjects.length===0){
+if(diffDays===1){
+return 90;
+}
 
-container.innerHTML=`
+if(diffDays===2){
+return 80;
+}
 
-<div class="empty">
+if(diffDays<=5){
+return 60;
+}
 
-📚
+if(diffDays<=10){
+return 40;
+}
 
-<p>No subjects found.</p>
+if(diffDays<=20){
+return 20;
+}
 
-</div>
+return 5;
 
-`;
+}
+
+function isSubjectCompleted(subject){
+
+return subject.total>0 && subject.completed>=subject.total;
+
+}
+
+function buildStudyPlan(){
+
+const plan=[];
+
+const today=new Date();
+today.setHours(0,0,0,0);
+
+// ---------- TASKS ----------
+
+tasks.forEach(task=>{
+
+if(task.completed){
 
 return;
 
 }
 
-let plan=[];
+const deadlineScore=
+getDeadlineScore(task.date);
 
-const today=new Date();
+let priorityBonus=10;
+
+if(task.priority==="High"){
+
+priorityBonus=30;
+
+}
+
+else if(task.priority==="Medium"){
+
+priorityBonus=20;
+
+}
+
+const estimatedHours=
+
+(task.estimatedHours && task.estimatedHours>0)
+
+?task.estimatedHours
+
+:1;
+
+// workload is a small, secondary factor —
+// capped so it can never outweigh a deadline tier
+const workloadScore=
+Math.min(estimatedHours*2,10);
+
+const score=
+
+(deadlineScore+priorityBonus)+workloadScore;
+
+plan.push({
+
+type:"task",
+
+title:task.title,
+
+score:Math.round(score),
+
+deadline:task.date,
+
+daysRemaining:getDaysRemaining(task.date),
+
+estimatedHours,
+
+completed:false,
+
+priority:task.priority
+
+});
+
+});
+
+// ---------- SUBJECTS ----------
 
 subjects.forEach(subject=>{
 
 const remaining=
+
 subject.total-subject.completed;
 
 if(remaining<=0){
@@ -1249,16 +1353,41 @@ return;
 
 }
 
-const examDate=
-new Date(subject.exam);
+const deadlineScore=
 
-let daysLeft=Math.ceil(
+getDeadlineScore(subject.exam);
 
-(examDate-today)
+let difficultyMultiplier=1.0;
 
-/
+if(subject.difficulty==="Medium"){
 
-(1000*60*60*24)
+difficultyMultiplier=1.2;
+
+}
+
+else if(subject.difficulty==="Hard"){
+
+difficultyMultiplier=1.5;
+
+}
+
+// workload is a small, secondary factor —
+// capped so a huge subject can never
+// outweigh a near-term deadline
+const workloadScore=
+
+Math.min(remaining*0.5,10);
+
+const score=
+
+(deadlineScore*difficultyMultiplier)+workloadScore;
+
+const examDate=new Date(subject.exam);
+examDate.setHours(0,0,0,0);
+
+let daysLeft=Math.round(
+
+(examDate-today)/(1000*60*60*24)
 
 );
 
@@ -1268,126 +1397,235 @@ daysLeft=1;
 
 }
 
-let urgency;
-
-if(daysLeft<=2){
-
-urgency=5;
-
-}
-
-else if(daysLeft<=5){
-
-urgency=4;
-
-}
-
-else if(daysLeft<=10){
-
-urgency=3;
-
-}
-
-else{
-
-urgency=2;
-
-}
-
-let difficulty;
-
-switch(subject.difficulty){
-
-case "Hard":
-
-difficulty=3;
-
-break;
-
-case "Medium":
-
-difficulty=2;
-
-break;
-
-default:
-
-difficulty=1;
-
-}
-
-let workload;
-
-if(remaining>=15){
-
-workload=3;
-
-}
-
-else if(remaining>=8){
-
-workload=2;
-
-}
-
-else{
-
-workload=1;
-
-}
-
-const score=
-
-urgency+
-
-difficulty+
-
-workload;
-
 const chaptersToday=
 
 Math.max(
 
 1,
 
-Math.ceil(
-
-remaining/daysLeft
-
-)
+Math.ceil(remaining/daysLeft)
 
 );
 
-const hours=
+const estimatedHours=
 
-(chaptersToday*
-
-(difficulty==3?1.5:
-
-difficulty==2?1:
-
-0.75)
-
-).toFixed(1);
++((chaptersToday*45)/60).toFixed(1);
 
 plan.push({
 
-name:subject.name,
+type:"subject",
 
-score,
+title:subject.name,
 
-chaptersToday,
+score:Math.round(score),
 
-hours,
+deadline:subject.exam,
 
-difficulty:subject.difficulty
+daysRemaining:getDaysRemaining(subject.exam),
+
+estimatedHours,
+
+completed:false,
+
+difficulty:subject.difficulty,
+
+remainingChapters:remaining,
+
+completedChapters:subject.completed,
+
+totalChapters:subject.total,
+
+chaptersToday
 
 });
 
 });
-plan.sort((a,b)=>b.score-a.score);
 
-plan=plan.slice(0,3);
+// ---------- STABLE SORT ----------
+// 1. higher score first
+// 2. earlier deadline first
+// 3. tasks before subjects
+// 4. alphabetical title
+
+plan.sort((a,b)=>{
+
+if(b.score!==a.score){
+
+return b.score-a.score;
+
+}
+
+const deadlineDiff=
+
+new Date(a.deadline)-new Date(b.deadline);
+
+if(deadlineDiff!==0){
+
+return deadlineDiff;
+
+}
+
+if(a.type!==b.type){
+
+return a.type==="task" ? -1 : 1;
+
+}
+
+return a.title.localeCompare(b.title);
+
+});
+
+// ---------- SUMMARY ----------
+
+const completedTasks=
+
+tasks.filter(t=>t.completed).length;
+
+const completedSubjects=
+
+subjects.filter(isSubjectCompleted).length;
+
+const completedChapters=
+
+subjects.reduce(
+
+(sum,s)=>sum+s.completed,0
+
+);
+
+const totalChapters=
+
+subjects.reduce(
+
+(sum,s)=>sum+s.total,0
+
+);
+
+const totalEstimatedHours=
+
++plan.reduce(
+
+(sum,item)=>sum+item.estimatedHours,0
+
+).toFixed(1);
+
+const upcomingDeadlinesCount=
+
+plan.filter(
+
+item=>item.daysRemaining<=7
+
+).length;
+
+const summary={
+
+totalTasks:tasks.length,
+
+completedTasks,
+
+pendingTasks:tasks.length-completedTasks,
+
+totalSubjects:subjects.length,
+
+completedSubjects,
+
+activeSubjects:subjects.length-completedSubjects,
+
+completedChapters,
+
+totalChapters,
+
+overallTaskProgress:
+
+tasks.length>0
+
+?Math.round((completedTasks/tasks.length)*100)
+
+:0,
+
+overallSubjectProgress:
+
+totalChapters>0
+
+?Math.round((completedChapters/totalChapters)*100)
+
+:0,
+
+overallProgress:
+
+(tasks.length+totalChapters)>0
+
+?Math.round(
+
+((completedTasks+completedChapters)/
+
+(tasks.length+totalChapters))*100
+
+)
+
+:0,
+
+totalEstimatedHours,
+
+recommendedStudySessions:plan.length,
+
+upcomingDeadlinesCount
+
+};
+
+return {
+
+plan,
+
+summary
+
+};
+
+}
+
+// ======================================
+// SMART STUDY SCHEDULER — RENDER
+// (display only, reads buildStudyPlan())
+// ======================================
+
+const generatePlanBtn =
+document.getElementById("generatePlan");
+
+if(generatePlanBtn){
+
+generatePlanBtn.onclick =
+renderStudyPlan;
+
+}
+
+function renderStudyPlan(){
+
+const container =
+document.getElementById("studyPlan");
+
+if(!container) return;
+
+container.innerHTML="";
+
+if(tasks.length===0 && subjects.length===0){
+
+container.innerHTML=`
+
+<div class="empty">
+
+📚
+
+<p>No tasks or subjects found.</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+const {plan}=buildStudyPlan();
 
 if(plan.length===0){
 
@@ -1407,7 +1645,15 @@ return;
 
 }
 
-plan.forEach(subject=>{
+plan.forEach(item=>{
+
+const goalLine=
+
+item.type==="subject"
+
+?`Today's Goal: <strong>${item.chaptersToday} chapter(s)</strong>`
+
+:`Due: <strong>${item.deadline}</strong>`;
 
 container.innerHTML+=`
 
@@ -1415,28 +1661,13 @@ container.innerHTML+=`
 
 <h3>
 
-📖 ${subject.name}
+${item.type==="subject" ? "📖" : "📝"} ${item.title}
 
 </h3>
 
 <p class="planInfo">
 
-Today's Goal:
-<strong>
-
-${subject.chaptersToday}
-
-chapter(s)
-
-</strong>
-
-</p>
-
-<p class="planInfo">
-
-Difficulty:
-
-${subject.difficulty}
+${goalLine}
 
 </p>
 
@@ -1444,7 +1675,7 @@ ${subject.difficulty}
 
 ⏳
 
-${subject.hours}
+${item.estimatedHours}
 
 hours recommended
 
