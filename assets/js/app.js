@@ -124,153 +124,10 @@ if(quote){
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
+// Dashboard rendering (task-list, progress, deadlines) now lives
+// further down, after buildStudyPlan() is defined — see
+// "DASHBOARD (SCHEDULER-DRIVEN)" section near the end of this file.
 
-
-// ===============================
-// DASHBOARD TASKS
-// ===============================
-
-const taskList=document.getElementById("task-list");
-
-if(taskList){
-
-    if(tasks.length===0){
-
-        taskList.innerHTML=`
-
-        <div class="empty">
-
-        🌿
-
-        <p>Your compass is clear.</p>
-
-        <span>Add your first task from Planner.</span>
-
-        </div>
-
-        `;
-
-    }
-
-    else{
-
-        taskList.innerHTML="";
-
-        tasks.slice(0,5).forEach(task=>{
-
-            taskList.innerHTML += `
-
-<label class="task">
-
-<input
-type="checkbox"
-${task.completed ? "checked" : ""}
-onchange="toggleTask(${tasks.indexOf(task)})">
-
-<div>
-
-<strong>${task.title}</strong>
-
-<br>
-
-<small>${task.date}</small>
-
-</div>
-
-</label>
-
-`;
-
-`;
-                <div>
-
-                    <strong>${task.title}</strong>
-
-                    <br>
-
-                    <small>${task.date}</small>
-
-                </div>
-
-            </div>
-
-            `;
-
-        });
-
-    }
-
-}
-
-
-
-// ===============================
-// PROGRESS
-// ===============================
-
-const fill=document.getElementById("progressFill");
-
-const text=document.getElementById("progressText");
-
-if(fill && text){
-
-    const completed=
-
-    tasks.filter(task=>task.completed).length;
-
-    const percent=
-
-    tasks.length===0
-
-    ?0
-
-    :Math.round((completed/tasks.length)*100);
-
-    fill.style.width=percent+"%";
-
-    text.textContent=
-
-    percent+"% Completed";
-
-}
-
-
-
-// ===============================
-// DEADLINES
-// ===============================
-
-const deadline=document.getElementById("deadline-list");
-
-if(deadline){
-
-    if(tasks.length===0){
-
-        deadline.innerHTML="No upcoming deadlines.";
-
-    }
-
-    else{
-
-        tasks.slice(0,4).forEach(task=>{
-
-            deadline.innerHTML+=`
-
-            <div class="deadline">
-
-                <strong>${task.title}</strong>
-
-                <p>${task.date}</p>
-
-            </div>
-
-            `;
-
-        });
-
-    }
-
-}
 // ======================
 // PLANNER
 // ======================
@@ -450,17 +307,43 @@ function updateProgress(){
 
     if(!fill || !text) return;
 
-    const completed =
-        tasks.filter(task => task.completed).length;
+    const {summary} = buildStudyPlan();
 
-    const percent =
-        tasks.length === 0
-        ? 0
-        : Math.round(completed / tasks.length * 100);
+    fill.style.width = summary.overallProgress + "%";
 
-    fill.style.width = percent + "%";
+    text.textContent = `${summary.overallProgress}% Overall Progress`;
 
-    text.textContent = `${percent}% Completed`;
+    const taskProgressText =
+        document.getElementById("taskProgressText");
+
+    const subjectProgressText =
+        document.getElementById("subjectProgressText");
+
+    const chapterProgressText =
+        document.getElementById("chapterProgressText");
+
+    if(taskProgressText){
+        taskProgressText.textContent =
+            summary.overallTaskProgress + "%";
+    }
+
+    if(subjectProgressText){
+
+        const subjectCompletionRate =
+            summary.totalSubjects === 0
+            ? 0
+            : Math.round(
+                (summary.completedSubjects / summary.totalSubjects) * 100
+            );
+
+        subjectProgressText.textContent =
+            subjectCompletionRate + "%";
+    }
+
+    if(chapterProgressText){
+        chapterProgressText.textContent =
+            summary.overallSubjectProgress + "%";
+    }
 
 }
 // ======================================
@@ -1688,6 +1571,685 @@ hours recommended
 });
 
 }
+// ======================================
+// DASHBOARD (SCHEDULER-DRIVEN)
+// All dashboard sections read directly
+// from buildStudyPlan()'s {plan, summary}.
+// No statistic is recalculated here.
+// ======================================
+
+function renderDashboardSummary(summary){
+
+    const tasksCompletedEl =
+        document.getElementById("dashTasksCompleted");
+
+    const tasksPendingEl =
+        document.getElementById("dashTasksPending");
+
+    const subjectsCompletedEl =
+        document.getElementById("dashSubjectsCompleted");
+
+    const activeSubjectsEl =
+        document.getElementById("dashActiveSubjects");
+
+    const completedChaptersEl =
+        document.getElementById("dashCompletedChapters");
+
+    const totalChaptersEl =
+        document.getElementById("dashTotalChapters");
+
+    if(!tasksCompletedEl){
+        return;
+    }
+
+    tasksCompletedEl.textContent = summary.completedTasks;
+    tasksPendingEl.textContent = summary.pendingTasks;
+    subjectsCompletedEl.textContent = summary.completedSubjects;
+    activeSubjectsEl.textContent = summary.activeSubjects;
+    completedChaptersEl.textContent = summary.completedChapters;
+    totalChaptersEl.textContent = summary.totalChapters;
+
+}
+
+function formatDueLabel(daysRemaining){
+
+    if(daysRemaining < 0){
+        return "Overdue";
+    }
+
+    if(daysRemaining === 0){
+        return "Due Today";
+    }
+
+    if(daysRemaining === 1){
+        return "Due Tomorrow";
+    }
+
+    return `Due in ${daysRemaining} days`;
+
+}
+
+function formatHoursLabel(estimatedHours){
+
+    return `${estimatedHours} ${estimatedHours === 1 ? "Hour" : "Hours"}`;
+
+}
+
+function renderDashboardStudyPlan(plan){
+
+    const container =
+        document.getElementById("task-list");
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML = "";
+
+    if(plan.length === 0){
+
+        container.innerHTML = `
+
+<div class="empty">
+
+🎉
+
+<p>Everything is completed.</p>
+
+</div>
+
+`;
+
+        return;
+
+    }
+
+    plan.slice(0,3).forEach((item,i)=>{
+
+        if(item.type === "task"){
+
+            container.innerHTML += `
+
+<div class="planCard">
+
+<label class="planCheckbox">
+
+<input type="checkbox" onclick="handleDashboardCheckboxClick(${i}, this)">
+
+<span class="taskTitle">${item.title}</span>
+
+</label>
+
+<p class="planInfo">📅 ${formatDueLabel(item.daysRemaining)}</p>
+
+<p class="planInfo">⏱ ${formatHoursLabel(item.estimatedHours)}</p>
+
+</div>
+
+`;
+
+            return;
+
+        }
+
+        // Subjects stay read-only, same layout as before
+
+        container.innerHTML += `
+
+<div class="planCard">
+
+<h3>
+
+📖 ${item.title}
+
+</h3>
+
+<p class="planInfo">
+
+Type: <strong>Subject</strong>
+
+</p>
+
+<p class="planInfo">
+
+Due: <strong>${item.deadline}</strong>
+
+</p>
+
+<p class="planInfo">Today's Goal: <strong>${item.chaptersToday} chapter(s)</strong></p>
+
+<div class="planHours">
+
+⏳
+
+${item.estimatedHours}
+
+hours recommended
+
+</div>
+
+</div>
+
+`;
+
+    });
+
+}
+
+function handleDashboardCheckboxClick(planIndex, checkboxEl){
+
+    const card = checkboxEl.closest(".planCard");
+
+    if(card){
+        card.classList.add("completing");
+    }
+
+    setTimeout(()=>{
+
+        completeDashboardTask(planIndex);
+
+    }, 300);
+
+}
+
+function completeDashboardTask(planIndex){
+
+    const {plan} = buildStudyPlan();
+
+    const item = plan[planIndex];
+
+    if(!item || item.type !== "task"){
+        return;
+    }
+
+    const taskIndex = tasks.findIndex(
+        t => !t.completed &&
+        t.title === item.title &&
+        t.date === item.deadline
+    );
+
+    if(taskIndex === -1){
+        return;
+    }
+
+    tasks[taskIndex].completed = true;
+
+    localStorage.setItem(
+        "tasks",
+        JSON.stringify(tasks)
+    );
+
+    renderDashboard();
+
+}
+
+function getWorkloadLevel(summary, plan){
+
+    const highPriorityCount =
+        plan.filter(
+            item => item.type === "task" && item.priority === "High"
+        ).length;
+
+    if(summary.totalEstimatedHours <= 2 && highPriorityCount === 0){
+
+        return {emoji:"🟢", label:"Light"};
+
+    }
+
+    if(summary.totalEstimatedHours <= 5 && highPriorityCount <= 2){
+
+        return {emoji:"🟡", label:"Moderate"};
+
+    }
+
+    return {emoji:"🔴", label:"Heavy"};
+
+}
+
+function getPreferredStudyTime(){
+
+    const currentUser = JSON.parse(
+        sessionStorage.getItem("currentUser")
+    );
+
+    if(!currentUser){
+        return "Morning";
+    }
+
+    const allSettings = JSON.parse(
+        localStorage.getItem("allSettings")
+    ) || {};
+
+    const settings = allSettings[currentUser.email];
+
+    return (settings && settings.studyTime) || "Morning";
+
+}
+
+function getStudyWindowLabel(studyTime){
+
+    const windows = {
+
+        Morning:"8:00 AM – 11:00 AM",
+
+        Afternoon:"12:00 PM – 3:00 PM",
+
+        Evening:"6:00 PM – 9:00 PM",
+
+        Night:"9:00 PM – 12:00 AM"
+
+    };
+
+    return windows[studyTime] || windows.Morning;
+
+}
+
+function renderDashboardWorkload(summary, plan){
+
+    const hoursEl =
+        document.getElementById("dashTotalHours");
+
+    const sessionsEl =
+        document.getElementById("dashSessions");
+
+    const levelEl =
+        document.getElementById("workloadLevel");
+
+    const windowEl =
+        document.getElementById("preferredWindow");
+
+    if(!hoursEl || !sessionsEl){
+        return;
+    }
+
+    hoursEl.textContent = summary.totalEstimatedHours;
+    sessionsEl.textContent = summary.recommendedStudySessions;
+
+    if(levelEl){
+
+        const level = getWorkloadLevel(summary, plan);
+
+        levelEl.textContent =
+            `${level.emoji} ${level.label} Workload`;
+
+    }
+
+    if(windowEl){
+
+        const studyTime = getPreferredStudyTime();
+
+        windowEl.innerHTML =
+            `${studyTime}<br>${getStudyWindowLabel(studyTime)}`;
+
+    }
+
+}
+
+function renderDashboardDeadlines(plan){
+
+    const container =
+        document.getElementById("deadline-list");
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const upcoming =
+        [...plan]
+        .sort((a,b)=>a.daysRemaining-b.daysRemaining)
+        .slice(0,5);
+
+    if(upcoming.length === 0){
+
+        container.innerHTML = `
+
+<div class="empty">
+
+🎉
+
+<p>No upcoming deadlines.</p>
+
+</div>
+
+`;
+
+        return;
+
+    }
+
+    upcoming.forEach(item=>{
+
+        let daysLabel;
+
+        if(item.daysRemaining < 0){
+
+            daysLabel = "Overdue";
+
+        }
+
+        else if(item.daysRemaining === 0){
+
+            daysLabel = "Today";
+
+        }
+
+        else{
+
+            daysLabel = `${item.daysRemaining} day(s) left`;
+
+        }
+
+        container.innerHTML += `
+
+<div class="deadline">
+
+<strong>${item.type === "subject" ? "📖" : "📝"} ${item.title}</strong>
+
+<p>${daysLabel}</p>
+
+</div>
+
+`;
+
+    });
+
+}
+
+function renderDashboardFocus(plan){
+
+    const container =
+        document.getElementById("focusCardBody");
+
+    if(!container){
+        return;
+    }
+
+    if(plan.length === 0){
+
+        container.innerHTML = `
+
+<div class="empty">
+
+🎉
+
+<p>Nothing left for today.</p>
+
+</div>
+
+`;
+
+        return;
+
+    }
+
+    const item = plan[0];
+
+    const goalLine =
+        item.type === "subject"
+        ? `<p class="planInfo">Today's Chapter Goal: <strong>${item.chaptersToday} chapter(s)</strong></p>`
+        : "";
+
+    container.innerHTML = `
+
+<h3>
+
+${item.type === "subject" ? "📖" : "📝"} ${item.title}
+
+</h3>
+
+<p class="planInfo">
+
+Type: <strong>${item.type === "subject" ? "Subject" : "Task"}</strong>
+
+</p>
+
+<p class="planInfo">
+
+Deadline: <strong>${item.deadline}</strong>
+
+</p>
+
+<p class="planInfo">
+
+Priority Score: <strong>${item.score}</strong>
+
+</p>
+
+${goalLine}
+
+<div class="planHours">
+
+⏳
+
+${item.estimatedHours}
+
+hours recommended
+
+</div>
+
+`;
+
+}
+
+function buildDashboardInsights(plan, summary){
+
+    const insights = [];
+
+    const upcomingCount =
+        plan.filter(
+            item => item.daysRemaining >= 0 && item.daysRemaining <= 7
+        ).length;
+
+    if(upcomingCount > 0){
+
+        insights.push(
+            `You have ${upcomingCount} deadline(s) this week.`
+        );
+
+    }
+
+    const topSubject =
+        plan.find(item => item.type === "subject");
+
+    if(topSubject){
+
+        insights.push(
+            `${topSubject.title} requires the most attention.`
+        );
+
+    }
+
+    if(summary.totalChapters > 0){
+
+        insights.push(
+            `${summary.overallSubjectProgress}% of your chapters are completed.`
+        );
+
+    }
+
+    if(summary.totalTasks > 0){
+
+        insights.push(
+            `You have completed ${summary.completedTasks} of ${summary.totalTasks} tasks.`
+        );
+
+    }
+
+    const level = getWorkloadLevel(summary, plan);
+
+    insights.push(
+        `Today's workload is ${level.label.toLowerCase()}.`
+    );
+
+    return insights;
+
+}
+
+function renderDashboardInsights(plan, summary){
+
+    const container =
+        document.getElementById("insightsList");
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const insights = buildDashboardInsights(plan, summary);
+
+    insights.forEach(insight=>{
+
+        container.innerHTML += `<p class="planInfo">• ${insight}</p>`;
+
+    });
+
+}
+
+function getRecentlyCompleted(){
+
+    const completedTasks =
+        tasks
+        .filter(t => t.completed)
+        .map(t => ({title:t.title, type:"task"}));
+
+    const completedSubjects =
+        subjects
+        .filter(isSubjectCompleted)
+        .map(s => ({title:s.name, type:"subject"}));
+
+    return [...completedTasks, ...completedSubjects]
+        .reverse()
+        .slice(0,5);
+
+}
+
+function renderDashboardRecentlyCompleted(){
+
+    const container =
+        document.getElementById("recentCompletedList");
+
+    if(!container){
+        return;
+    }
+
+    container.innerHTML = "";
+
+    const recent = getRecentlyCompleted();
+
+    if(recent.length === 0){
+
+        container.innerHTML = `
+
+<div class="empty">
+
+📭
+
+<p>Nothing completed yet.</p>
+
+</div>
+
+`;
+
+        return;
+
+    }
+
+    recent.forEach(item=>{
+
+        container.innerHTML += `
+
+<div class="deadline">
+
+<strong>✓ ${item.title}</strong>
+
+<p>${item.type === "subject" ? "Subject" : "Task"}</p>
+
+</div>
+
+`;
+
+    });
+
+}
+
+function buildQuickStatus(plan, summary){
+
+    if(plan.length === 0){
+
+        return "Everything for today is completed. Great job!";
+
+    }
+
+    const soonSubject =
+        plan.find(
+            item => item.type === "subject" && item.daysRemaining <= 2
+        );
+
+    if(soonSubject){
+
+        const when =
+            soonSubject.daysRemaining <= 0
+            ? "today"
+            : `in ${soonSubject.daysRemaining} day(s)`;
+
+        return `You have an exam ${when}. Focus on ${soonSubject.title}.`;
+
+    }
+
+    if(summary.totalEstimatedHours >= 5){
+
+        return `Busy day ahead: approximately ${summary.totalEstimatedHours} study hours.`;
+
+    }
+
+    const remainingTasks =
+        plan.filter(item => item.type === "task").length;
+
+    if(remainingTasks > 0){
+
+        return `Great progress! Only ${remainingTasks} task(s) remain today.`;
+
+    }
+
+    return "You're on track for today.";
+
+}
+
+function renderDashboardQuickStatus(plan, summary){
+
+    const container =
+        document.getElementById("quickStatus");
+
+    if(!container){
+        return;
+    }
+
+    container.textContent = buildQuickStatus(plan, summary);
+
+}
+
+function renderDashboard(){
+
+    const {plan, summary} = buildStudyPlan();
+
+    updateProgress();
+
+    renderDashboardSummary(summary);
+    renderDashboardStudyPlan(plan);
+    renderDashboardWorkload(summary, plan);
+    renderDashboardDeadlines(plan);
+    renderDashboardFocus(plan);
+    renderDashboardInsights(plan, summary);
+    renderDashboardRecentlyCompleted();
+    renderDashboardQuickStatus(plan, summary);
+
+}
+
+renderDashboard();
+
 // ===============================
 // LOGOUT
 // ===============================

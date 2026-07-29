@@ -118,6 +118,9 @@ Logout
                     Tuesday, July 8
                 </p>
 
+                <p id="quickStatus">
+                </p>
+
             </div>
 
         </section>
@@ -140,24 +143,61 @@ Logout
         </section>
 
 
+        <!-- Task & Subject Summary (from scheduler.summary) -->
+
+        <section class="planner-info">
+
+            <div class="info-card">
+                <h3>Tasks Completed</h3>
+                <h1 id="dashTasksCompleted">0</h1>
+            </div>
+
+            <div class="info-card">
+                <h3>Tasks Pending</h3>
+                <h1 id="dashTasksPending">0</h1>
+            </div>
+
+            <div class="info-card">
+                <h3>Subjects Completed</h3>
+                <h1 id="dashSubjectsCompleted">0</h1>
+            </div>
+
+            <div class="info-card">
+                <h3>Active Subjects</h3>
+                <h1 id="dashActiveSubjects">0</h1>
+            </div>
+
+            <div class="info-card">
+                <h3>Completed Chapters</h3>
+                <h1 id="dashCompletedChapters">0</h1>
+            </div>
+
+            <div class="info-card">
+                <h3>Total Chapters</h3>
+                <h1 id="dashTotalChapters">0</h1>
+            </div>
+
+        </section>
+
+
         <!-- Dashboard Grid -->
 
         <section class="dashboard-grid">
 
 
-            <!-- Today's Focus -->
+            <!-- Today's Smart Study Plan (top 3 from scheduler.plan) -->
 
             <div class="focus-card">
 
                 <div class="card-title">
 
-                    Today's Focus
+                    Today's Smart Study Plan
 
                 </div>
 
                 <div id="task-list">
 
-                    <!-- JS inserts tasks -->
+                    <!-- JS inserts top 3 scheduler.plan items -->
 
                 </div>
 
@@ -165,7 +205,7 @@ Logout
 
 
 
-            <!-- Progress -->
+            <!-- Progress (from scheduler.summary) -->
 
             <div class="progress-card">
 
@@ -187,15 +227,34 @@ Logout
 
                 <p id="progressText">
 
-                    0% Completed
+                    0% Overall Progress
 
                 </p>
+
+                <div id="progressBreakdown">
+
+                    <div class="deadline">
+                        <strong>Task Progress</strong>
+                        <p id="taskProgressText">0%</p>
+                    </div>
+
+                    <div class="deadline">
+                        <strong>Subject Progress</strong>
+                        <p id="subjectProgressText">0%</p>
+                    </div>
+
+                    <div class="deadline">
+                        <strong>Chapter Progress</strong>
+                        <p id="chapterProgressText">0%</p>
+                    </div>
+
+                </div>
 
             </div>
 
 
 
-            <!-- Deadlines -->
+            <!-- Deadlines (next 5 from scheduler.plan) -->
 
             <div class="deadline-card">
 
@@ -206,6 +265,89 @@ Logout
                 </div>
 
                 <div id="deadline-list">
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Today's Workload (from scheduler.summary) -->
+
+            <div class="progress-card">
+
+                <div class="card-title">
+
+                    Today's Workload
+
+                </div>
+
+                <p id="workloadLevel">
+                </p>
+
+                <div class="deadline">
+                    <strong>Total Estimated Study Hours</strong>
+                    <p id="dashTotalHours">0</p>
+                </div>
+
+                <div class="deadline">
+                    <strong>Recommended Study Sessions</strong>
+                    <p id="dashSessions">0</p>
+                </div>
+
+                <div class="deadline">
+                    <strong>Preferred Window</strong>
+                    <p id="preferredWindow">Morning</p>
+                </div>
+
+            </div>
+
+
+            <!-- Today's Focus (highest-priority item from scheduler.plan) -->
+
+            <div class="progress-card">
+
+                <div class="card-title">
+
+                    Today's Focus
+
+                </div>
+
+                <div id="focusCardBody">
+
+                </div>
+
+            </div>
+
+
+            <!-- Insights (derived from scheduler.summary and scheduler.plan) -->
+
+            <div class="progress-card">
+
+                <div class="card-title">
+
+                    Insights
+
+                </div>
+
+                <div id="insightsList">
+
+                </div>
+
+            </div>
+
+
+            <!-- Recently Completed -->
+
+            <div class="progress-card">
+
+                <div class="card-title">
+
+                    Recently Completed
+
+                </div>
+
+                <div id="recentCompletedList">
 
                 </div>
 

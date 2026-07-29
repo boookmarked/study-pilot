@@ -1960,6 +1960,8 @@ padding:22px;
 
 border-radius:18px;
 
+transition:opacity .3s ease, transform .3s ease;
+
 box-shadow:0 6px 18px rgba(0,0,0,.05);
 
 }
@@ -1987,5 +1989,125 @@ margin-top:12px;
 font-weight:600;
 
 color:#7D4F9F;
+
+}
+
+/* Dashboard task checkbox (Today's Plan preview only) */
+
+.planCheckbox{
+
+display:flex;
+
+align-items:flex-start;
+
+gap:10px;
+
+margin-top:0;
+
+margin-bottom:12px;
+
+padding:4px 0;
+
+font-size:14px;
+
+color:var(--muted);
+
+cursor:pointer;
+
+user-select:none;
+
+}
+
+.planCheckbox .taskTitle{
+
+font-size:16px;
+
+font-weight:600;
+
+line-height:1.4;
+
+color:#5C3B73;
+
+}
+
+.planCard.completing{
+
+opacity:.5;
+
+transform:translateY(-12px);
+
+}
+
+.planCheckbox input[type="checkbox"]{
+
+appearance:none;
+
+-webkit-appearance:none;
+
+width:22px;
+
+height:22px;
+
+min-width:22px;
+
+margin-top:2px;
+
+border-radius:7px;
+
+border:2px solid var(--border);
+
+background:var(--card);
+
+position:relative;
+
+cursor:pointer;
+
+transition:var(--transition);
+
+}
+
+.planCheckbox input[type="checkbox"]:hover{
+
+border-color:var(--primary);
+
+box-shadow:0 0 0 4px rgba(55,25,44,.08);
+
+}
+
+.planCheckbox input[type="checkbox"]:checked{
+
+background:var(--primary);
+
+border-color:var(--primary);
+
+}
+
+.planCheckbox input[type="checkbox"]::after{
+
+content:"";
+
+position:absolute;
+
+left:6px;
+
+top:2px;
+
+width:6px;
+
+height:11px;
+
+border:solid #FFF;
+
+border-width:0 2px 2px 0;
+
+transform:rotate(45deg) scale(0);
+
+transition:transform .2s ease;
+
+}
+
+.planCheckbox input[type="checkbox"]:checked::after{
+
+transform:rotate(45deg) scale(1);
 
 }
