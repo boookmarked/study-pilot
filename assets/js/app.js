@@ -309,9 +309,9 @@ function updateProgress(){
 
     const {summary} = buildStudyPlan();
 
-    fill.style.width = summary.overallProgress + "%";
+    fill.style.setProperty("--progress", summary.overallProgress);
 
-    text.textContent = `${summary.overallProgress}% Overall Progress`;
+    text.textContent = `${summary.overallProgress}%`;
 
     const taskProgressText =
         document.getElementById("taskProgressText");
@@ -322,8 +322,22 @@ function updateProgress(){
     const chapterProgressText =
         document.getElementById("chapterProgressText");
 
+    const taskProgressBar =
+        document.getElementById("taskProgressBar");
+
+    const subjectProgressBar =
+        document.getElementById("subjectProgressBar");
+
+    const chapterProgressBar =
+        document.getElementById("chapterProgressBar");
+
     if(taskProgressText){
         taskProgressText.textContent =
+            summary.overallTaskProgress + "%";
+    }
+
+    if(taskProgressBar){
+        taskProgressBar.style.width =
             summary.overallTaskProgress + "%";
     }
 
@@ -338,10 +352,21 @@ function updateProgress(){
 
         subjectProgressText.textContent =
             subjectCompletionRate + "%";
+
+        if(subjectProgressBar){
+            subjectProgressBar.style.width =
+                subjectCompletionRate + "%";
+        }
+
     }
 
     if(chapterProgressText){
         chapterProgressText.textContent =
+            summary.overallSubjectProgress + "%";
+    }
+
+    if(chapterProgressBar){
+        chapterProgressBar.style.width =
             summary.overallSubjectProgress + "%";
     }
 
@@ -1609,6 +1634,13 @@ function renderDashboardSummary(summary){
     completedChaptersEl.textContent = summary.completedChapters;
     totalChaptersEl.textContent = summary.totalChapters;
 
+    const upcomingCountEl =
+        document.getElementById("dashUpcomingCount");
+
+    if(upcomingCountEl){
+        upcomingCountEl.textContent = summary.upcomingDeadlinesCount;
+    }
+
 }
 
 function formatDueLabel(daysRemaining){
@@ -1632,6 +1664,20 @@ function formatDueLabel(daysRemaining){
 function formatHoursLabel(estimatedHours){
 
     return `${estimatedHours} ${estimatedHours === 1 ? "Hour" : "Hours"}`;
+
+}
+
+function formatPriorityLabel(priority){
+
+    if(priority === "High"){
+        return "🔥 High Priority";
+    }
+
+    if(priority === "Medium"){
+        return "🟡 Medium Priority";
+    }
+
+    return "🟢 Low Priority";
 
 }
 
@@ -1684,6 +1730,8 @@ function renderDashboardStudyPlan(plan){
 
 <p class="planInfo">⏱ ${formatHoursLabel(item.estimatedHours)}</p>
 
+<p class="planInfo">${formatPriorityLabel(item.priority)}</p>
+
 </div>
 
 `;
@@ -1692,7 +1740,7 @@ function renderDashboardStudyPlan(plan){
 
         }
 
-        // Subjects stay read-only, same layout as before
+        // Subjects stay read-only, compact format
 
         container.innerHTML += `
 
@@ -1700,33 +1748,13 @@ function renderDashboardStudyPlan(plan){
 
 <h3>
 
-📖 ${item.title}
+📚 ${item.title}
 
 </h3>
 
-<p class="planInfo">
-
-Type: <strong>Subject</strong>
-
-</p>
-
-<p class="planInfo">
-
-Due: <strong>${item.deadline}</strong>
-
-</p>
-
 <p class="planInfo">Today's Goal: <strong>${item.chaptersToday} chapter(s)</strong></p>
 
-<div class="planHours">
-
-⏳
-
-${item.estimatedHours}
-
-hours recommended
-
-</div>
+<p class="planInfo">⏱ ${formatHoursLabel(item.estimatedHours)}</p>
 
 </div>
 

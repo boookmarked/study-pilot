@@ -2111,3 +2111,621 @@ transition:transform .2s ease;
 transform:rotate(45deg) scale(1);
 
 }
+
+/* ============================================================
+   DASHBOARD HOME REDESIGN
+   Every rule below is scoped under .dashboard-home so no other
+   page (Planner, Subjects, Analytics, Settings) is affected,
+   even though some class names below are shared with them.
+   ============================================================ */
+
+@property --progress{
+syntax:'<number>';
+inherits:true;
+initial-value:0;
+}
+
+/* ---------- Spacing rhythm ---------- */
+
+.dashboard-home{
+
+display:flex;
+
+flex-direction:column;
+
+gap:36px;
+
+}
+
+.dashboard-home > section{
+
+margin-bottom:0;
+
+}
+
+/* ---------- Hero (emotional opener only) ---------- */
+
+.dashboard-home .hero{
+
+display:block;
+
+margin-bottom:0;
+
+}
+
+.dashboard-home .hero h1{
+
+font-size:40px;
+
+margin-bottom:6px;
+
+}
+
+.dashboard-home .hero #date{
+
+color:var(--muted);
+
+font-size:15px;
+
+margin-bottom:14px;
+
+}
+
+.dashboard-home .hero #quickStatus{
+
+font-family:'Cormorant Garamond',serif;
+
+font-size:22px;
+
+font-weight:600;
+
+color:var(--primary);
+
+margin-bottom:18px;
+
+}
+
+.dashboard-home .heroQuote{
+
+display:flex;
+
+align-items:center;
+
+gap:14px;
+
+}
+
+.dashboard-home .heroQuote .quote-mark{
+
+font-size:38px;
+
+line-height:1;
+
+color:var(--gold);
+
+}
+
+.dashboard-home .heroQuote #quote{
+
+color:var(--muted);
+
+font-size:14px;
+
+font-style:italic;
+
+max-width:520px;
+
+}
+
+/* ---------- Major card base (hover lift + transition) ---------- */
+
+.dashboard-home .progress-card,
+.dashboard-home .focus-card,
+.dashboard-home .deadline-card{
+
+transition:transform .2s ease, box-shadow .2s ease;
+
+}
+
+.dashboard-home .progress-card:hover,
+.dashboard-home .focus-card:hover,
+.dashboard-home .deadline-card:hover{
+
+transform:translateY(-3px);
+
+box-shadow:var(--shadow-hover);
+
+}
+
+/* ---------- Progress card ---------- */
+
+.dashboard-home .progressCard{
+
+padding:36px;
+
+}
+
+.dashboard-home .progressLayout{
+
+display:flex;
+
+align-items:center;
+
+gap:48px;
+
+}
+
+.dashboard-home .progressRingWrap{
+
+position:relative;
+
+width:160px;
+
+height:160px;
+
+flex-shrink:0;
+
+overflow:hidden;
+
+}
+
+.dashboard-home .progressRingWrap .progress-bar{
+
+width:160px;
+
+height:160px;
+
+margin:0;
+
+background:transparent;
+
+border-radius:50%;
+
+overflow:visible;
+
+padding:0;
+
+}
+
+.dashboard-home .progressRingWrap .progress-fill{
+
+width:160px;
+
+height:160px;
+
+border-radius:50%;
+
+background:conic-gradient(var(--primary) calc(var(--progress,0)*1%), var(--border) 0);
+
+transition:--progress .6s ease;
+
+animation:none;
+
+}
+
+.dashboard-home .progressRingCenter{
+
+position:absolute;
+
+top:50%;
+
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:118px;
+
+height:118px;
+
+border-radius:50%;
+
+background:var(--card);
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+justify-content:center;
+
+box-shadow:0 2px 10px rgba(55,25,44,.08);
+
+}
+
+.dashboard-home .progressRingCenter #progressText{
+
+margin:0;
+
+font-size:34px;
+
+font-weight:700;
+
+color:var(--primary);
+
+line-height:1;
+
+white-space:nowrap;
+
+}
+
+.dashboard-home .progressRingCaption{
+
+margin-top:6px;
+
+font-size:13px;
+
+color:var(--muted);
+
+white-space:nowrap;
+
+}
+
+.dashboard-home .progressBars{
+
+flex:1;
+
+display:flex;
+
+flex-direction:column;
+
+gap:20px;
+
+}
+
+.dashboard-home .progressBarLabel{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:baseline;
+
+margin-bottom:8px;
+
+font-size:14px;
+
+color:var(--muted);
+
+}
+
+.dashboard-home .progressBarLabel strong{
+
+color:var(--text);
+
+font-weight:600;
+
+}
+
+.dashboard-home .progressBarTrack{
+
+width:100%;
+
+height:10px;
+
+border-radius:50px;
+
+background:var(--border);
+
+overflow:hidden;
+
+}
+
+.dashboard-home .progressBarFill{
+
+height:100%;
+
+border-radius:50px;
+
+width:0%;
+
+transition:width .6s ease;
+
+background:var(--primary);
+
+}
+
+.dashboard-home #subjectProgressBar{
+
+background:var(--gold);
+
+}
+
+.dashboard-home #chapterProgressBar{
+
+background:var(--primary);
+
+}
+
+/* ---------- Today's Focus (visually distinct) ---------- */
+
+.dashboard-home .focusHighlight{
+
+background:linear-gradient(180deg, #FBF3FB 0%, var(--card) 60%);
+
+border:1px solid #EAD9EE;
+
+border-left:6px solid var(--primary);
+
+padding:38px;
+
+}
+
+.dashboard-home .focusHighlight .card-title{
+
+font-size:20px;
+
+}
+
+.dashboard-home .focusHighlight #focusCardBody h3{
+
+font-size:26px;
+
+color:var(--primary);
+
+margin-bottom:14px;
+
+}
+
+.dashboard-home .focusHighlight #focusCardBody .planInfo{
+
+font-size:15px;
+
+margin:6px 0;
+
+}
+
+/* ---------- Smart Study Plan + Quick Stats row ---------- */
+
+.dashboard-home .planStatsRow{
+
+display:grid;
+
+grid-template-columns:2fr 1fr;
+
+gap:28px;
+
+align-items:start;
+
+}
+
+.dashboard-home #task-list .planCard{
+
+margin-bottom:16px;
+
+}
+
+.dashboard-home #task-list .planCard:last-child{
+
+margin-bottom:0;
+
+}
+
+.dashboard-home .viewFullPlanBtn{
+
+display:inline-block;
+
+margin-top:18px;
+
+font-weight:600;
+
+color:var(--primary);
+
+text-decoration:none;
+
+font-size:14px;
+
+transition:transform .2s ease, opacity .2s ease;
+
+}
+
+.dashboard-home .viewFullPlanBtn:hover{
+
+transform:translateX(4px);
+
+opacity:.75;
+
+}
+
+.dashboard-home .quickStatsGrid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:24px;
+
+}
+
+.dashboard-home .quickStatTile{
+
+display:flex;
+
+flex-direction:column;
+
+gap:4px;
+
+}
+
+.dashboard-home .quickStatIcon{
+
+font-size:22px;
+
+margin-bottom:4px;
+
+}
+
+.dashboard-home .quickStatLabel{
+
+font-size:12px;
+
+color:var(--muted);
+
+text-transform:uppercase;
+
+letter-spacing:.05em;
+
+}
+
+.dashboard-home .quickStatValue{
+
+font-size:22px;
+
+font-weight:700;
+
+color:var(--primary);
+
+}
+
+.dashboard-home .quickStatSub{
+
+font-size:12px;
+
+color:var(--muted);
+
+}
+
+/* ---------- Supporting cards ---------- */
+
+.dashboard-home .supportGrid{
+
+grid-template-columns:repeat(4,1fr);
+
+gap:24px;
+
+}
+
+.dashboard-home .supportCard{
+
+position:relative;
+
+padding:28px;
+
+}
+
+.dashboard-home .supportCard .cardIcon{
+
+display:block;
+
+font-size:30px;
+
+margin-bottom:12px;
+
+}
+
+.dashboard-home .supportCard .card-title{
+
+font-size:17px;
+
+margin-bottom:14px;
+
+}
+
+.dashboard-home .supportCard .planInfo{
+
+font-size:13px;
+
+margin:5px 0;
+
+}
+
+.dashboard-home .supportCard .deadline{
+
+padding:6px 0;
+
+}
+
+/* ---------- Mobile ---------- */
+
+@media(max-width:900px){
+
+.dashboard-home{
+
+gap:26px;
+
+}
+
+.dashboard-home .progressLayout{
+
+flex-direction:column;
+
+gap:28px;
+
+}
+
+.dashboard-home .progressBars{
+
+width:100%;
+
+}
+
+.dashboard-home .planStatsRow{
+
+grid-template-columns:1fr;
+
+}
+
+.dashboard-home .supportGrid{
+
+grid-template-columns:1fr 1fr;
+
+}
+
+.dashboard-home .progressCard,
+.dashboard-home .focusHighlight,
+.dashboard-home .supportCard{
+
+padding:24px;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.dashboard-home .supportGrid{
+
+grid-template-columns:1fr;
+
+}
+
+.dashboard-home .progressRingWrap{
+
+width:140px;
+
+height:140px;
+
+}
+
+.dashboard-home .progressRingWrap .progress-bar,
+.dashboard-home .progressRingWrap .progress-fill{
+
+width:140px;
+
+height:140px;
+
+}
+
+.dashboard-home .progressRingCenter{
+
+width:102px;
+
+height:102px;
+
+}
+
+.dashboard-home .progressRingCenter #progressText{
+
+font-size:28px;
+
+}
+
+.dashboard-home .quickStatsGrid{
+
+grid-template-columns:1fr 1fr;
+
+gap:18px;
+
+}
+
+}

@@ -101,10 +101,10 @@ Logout
 
     <!-- ================= Main ================= -->
 
-    <main class="content">
+    <main class="content dashboard-home">
 
 
-        <!-- Hero -->
+        <!-- Hero: the emotional opener only -->
 
         <section class="hero">
 
@@ -121,71 +121,121 @@ Logout
                 <p id="quickStatus">
                 </p>
 
+                <div class="heroQuote">
+                    <span class="quote-mark">❝</span>
+                    <p id="quote">
+                        Discipline is choosing
+                        between what you want now
+                        and what you want most.
+                    </p>
+                </div>
+
             </div>
 
         </section>
 
 
-        <!-- Quote -->
+        <!-- Progress: first major card, own importance -->
 
-        <section class="quote-section">
+        <section class="progressSection">
 
-            <div class="quote-mark">❝</div>
+            <div class="progress-card progressCard">
 
-            <p id="quote">
+                <div class="card-title">
 
-                Discipline is choosing
-                between what you want now
-                and what you want most.
+                    Progress
 
-            </p>
+                </div>
+
+                <div class="progressLayout">
+
+                    <div class="progressRingWrap">
+
+                        <div class="progress-bar">
+
+                            <div
+                            class="progress-fill"
+                            id="progressFill">
+
+                            </div>
+
+                        </div>
+
+                        <div class="progressRingCenter">
+
+                            <p id="progressText">0%</p>
+
+                            <span class="progressRingCaption">Overall Progress</span>
+
+                        </div>
+
+                    </div>
+
+                    <div id="progressBreakdown" class="progressBars">
+
+                        <div class="progressBarRow">
+                            <div class="progressBarLabel">
+                                <strong>Task Progress</strong>
+                                <span id="taskProgressText">0%</span>
+                            </div>
+                            <div class="progressBarTrack">
+                                <div class="progressBarFill" id="taskProgressBar"></div>
+                            </div>
+                        </div>
+
+                        <div class="progressBarRow">
+                            <div class="progressBarLabel">
+                                <strong>Subject Progress</strong>
+                                <span id="subjectProgressText">0%</span>
+                            </div>
+                            <div class="progressBarTrack">
+                                <div class="progressBarFill" id="subjectProgressBar"></div>
+                            </div>
+                        </div>
+
+                        <div class="progressBarRow">
+                            <div class="progressBarLabel">
+                                <strong>Chapter Progress</strong>
+                                <span id="chapterProgressText">0%</span>
+                            </div>
+                            <div class="progressBarTrack">
+                                <div class="progressBarFill" id="chapterProgressBar"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </section>
 
 
-        <!-- Task & Subject Summary (from scheduler.summary) -->
+        <!-- Today's Focus: second major card, visually distinct -->
 
-        <section class="planner-info">
+        <section class="focusSection">
 
-            <div class="info-card">
-                <h3>Tasks Completed</h3>
-                <h1 id="dashTasksCompleted">0</h1>
-            </div>
+            <div class="progress-card focusHighlight">
 
-            <div class="info-card">
-                <h3>Tasks Pending</h3>
-                <h1 id="dashTasksPending">0</h1>
-            </div>
+                <div class="card-title">
 
-            <div class="info-card">
-                <h3>Subjects Completed</h3>
-                <h1 id="dashSubjectsCompleted">0</h1>
-            </div>
+                    🎯 Today's Focus
 
-            <div class="info-card">
-                <h3>Active Subjects</h3>
-                <h1 id="dashActiveSubjects">0</h1>
-            </div>
+                </div>
 
-            <div class="info-card">
-                <h3>Completed Chapters</h3>
-                <h1 id="dashCompletedChapters">0</h1>
-            </div>
+                <div id="focusCardBody">
 
-            <div class="info-card">
-                <h3>Total Chapters</h3>
-                <h1 id="dashTotalChapters">0</h1>
+                </div>
+
             </div>
 
         </section>
 
 
-        <!-- Dashboard Grid -->
+        <!-- Smart Study Plan preview + Quick Stats -->
 
-        <section class="dashboard-grid">
-
-
-            <!-- Today's Smart Study Plan (top 3 from scheduler.plan) -->
+        <section class="planStatsRow">
 
             <div class="focus-card">
 
@@ -201,62 +251,77 @@ Logout
 
                 </div>
 
+                <a href="planner.html" class="viewFullPlanBtn">
+                    View Full Plan →
+                </a>
+
             </div>
 
-
-
-            <!-- Progress (from scheduler.summary) -->
-
-            <div class="progress-card">
+            <div class="progress-card quickStatsCard">
 
                 <div class="card-title">
 
-                    Progress
+                    Quick Stats
 
                 </div>
 
-                <div class="progress-bar">
+                <div class="quickStatsGrid">
 
-                    <div
-                    class="progress-fill"
-                    id="progressFill">
-
+                    <div class="quickStatTile">
+                        <span class="quickStatIcon">✅</span>
+                        <span class="quickStatLabel">Tasks</span>
+                        <span class="quickStatValue">
+                            <span id="dashTasksCompleted">0</span> done
+                        </span>
+                        <span class="quickStatSub">
+                            <span id="dashTasksPending">0</span> pending
+                        </span>
                     </div>
 
-                </div>
-
-                <p id="progressText">
-
-                    0% Overall Progress
-
-                </p>
-
-                <div id="progressBreakdown">
-
-                    <div class="deadline">
-                        <strong>Task Progress</strong>
-                        <p id="taskProgressText">0%</p>
+                    <div class="quickStatTile">
+                        <span class="quickStatIcon">📚</span>
+                        <span class="quickStatLabel">Subjects</span>
+                        <span class="quickStatValue">
+                            <span id="dashSubjectsCompleted">0</span> done
+                        </span>
+                        <span class="quickStatSub">
+                            <span id="dashActiveSubjects">0</span> active
+                        </span>
                     </div>
 
-                    <div class="deadline">
-                        <strong>Subject Progress</strong>
-                        <p id="subjectProgressText">0%</p>
+                    <div class="quickStatTile">
+                        <span class="quickStatIcon">📖</span>
+                        <span class="quickStatLabel">Chapters</span>
+                        <span class="quickStatValue">
+                            <span id="dashCompletedChapters">0</span> / <span id="dashTotalChapters">0</span>
+                        </span>
                     </div>
 
-                    <div class="deadline">
-                        <strong>Chapter Progress</strong>
-                        <p id="chapterProgressText">0%</p>
+                    <div class="quickStatTile">
+                        <span class="quickStatIcon">📅</span>
+                        <span class="quickStatLabel">Upcoming</span>
+                        <span class="quickStatValue">
+                            <span id="dashUpcomingCount">0</span>
+                        </span>
+                        <span class="quickStatSub">this week</span>
                     </div>
 
                 </div>
 
             </div>
 
+        </section>
 
 
-            <!-- Deadlines (next 5 from scheduler.plan) -->
+        <!-- Supporting cards -->
 
-            <div class="deadline-card">
+        <section class="dashboard-grid supportGrid">
+
+            <!-- Upcoming Deadlines -->
+
+            <div class="deadline-card supportCard">
+
+                <span class="cardIcon">📅</span>
 
                 <div class="card-title">
 
@@ -270,11 +335,11 @@ Logout
 
             </div>
 
+            <!-- Today's Workload -->
 
+            <div class="progress-card supportCard">
 
-            <!-- Today's Workload (from scheduler.summary) -->
-
-            <div class="progress-card">
+                <span class="cardIcon">📚</span>
 
                 <div class="card-title">
 
@@ -302,27 +367,11 @@ Logout
 
             </div>
 
+            <!-- Insights -->
 
-            <!-- Today's Focus (highest-priority item from scheduler.plan) -->
+            <div class="progress-card supportCard">
 
-            <div class="progress-card">
-
-                <div class="card-title">
-
-                    Today's Focus
-
-                </div>
-
-                <div id="focusCardBody">
-
-                </div>
-
-            </div>
-
-
-            <!-- Insights (derived from scheduler.summary and scheduler.plan) -->
-
-            <div class="progress-card">
+                <span class="cardIcon">💡</span>
 
                 <div class="card-title">
 
@@ -336,10 +385,11 @@ Logout
 
             </div>
 
-
             <!-- Recently Completed -->
 
-            <div class="progress-card">
+            <div class="progress-card supportCard">
+
+                <span class="cardIcon">✓</span>
 
                 <div class="card-title">
 
