@@ -2739,6 +2739,8 @@ gap:18px;
 
 opacity:.65;
 
+transition:opacity .4s ease;
+
 }
 
 .subjectCard.completed .subjectTop h2{
@@ -2747,6 +2749,8 @@ text-decoration:line-through;
 
 color:#8A7A85;
 
+transition:color .4s ease;
+
 }
 
 .subjectCard.completed .subjectBadge.completed{
@@ -2754,6 +2758,10 @@ color:#8A7A85;
 background:#EDE3F5;
 
 color:#6B4E86;
+
+opacity:1;
+
+transition:background .4s ease, color .4s ease, opacity .35s ease;
 
 }
 
@@ -2765,10 +2773,59 @@ color:#9A8FA0;
 
 cursor:not-allowed;
 
+transition:background .4s ease, color .4s ease;
+
 }
 
 .subjectCard.completed .editSubject:disabled:hover{
 
 background:#D8D2DC;
+
+}
+
+.subjectCard.completed.settling .subjectLeft{
+
+opacity:1;
+
+}
+
+.subjectCard.completed.settling .subjectTop h2{
+
+text-decoration:none;
+
+color:#5C3B73;
+
+}
+
+.subjectCard.completed.settling .subjectBadge.completed{
+
+opacity:0;
+
+}
+
+.subjectCard.completed.settling .editSubject:disabled{
+
+background:#7D4F9F;
+
+color:#FFF;
+
+cursor:default;
+
+}
+
+/* ================= SUBJECTS: DELETE TRANSITION ================= */
+/* Scoped entirely to .subjectCard.removing so it never interferes
+   with the FLIP reorder transition (which manages its own inline
+   transition on the same element at a different moment). */
+
+.subjectCard.removing{
+
+transition:opacity .35s ease, transform .35s ease;
+
+opacity:0;
+
+transform:translateX(24px);
+
+pointer-events:none;
 
 }

@@ -439,35 +439,9 @@ if(addSubjectBtn){
     };
 
 }
-function renderSubjects(){
+function getSubjectRenderOrder(){
 
-    const container = document.getElementById("allSubjects");
-
-    if(!container) return;
-
-    container.innerHTML="";
-
-    if(subjects.length===0){
-
-        container.innerHTML=`
-
-        <div class="empty">
-
-        📚
-
-        <p>No subjects added yet.</p>
-
-        <span>Add your first subject.</span>
-
-        </div>
-
-        `;
-
-        return;
-
-    }
-
-    const sortedSubjects = subjects
+    return subjects
 
         .map((subject,index)=>({subject,index}))
 
@@ -486,7 +460,13 @@ function renderSubjects(){
 
         });
 
-    sortedSubjects.forEach(({subject,index})=>{
+}
+
+function buildSubjectCardsHtml(order){
+
+    let html = "";
+
+    order.forEach(({subject,index})=>{
 
         const progress=Math.round(
             (subject.completed/subject.total)*100
@@ -502,9 +482,9 @@ function renderSubjects(){
             ? `<button class="editSubject" disabled>+ Chapter</button>`
             : `<button class="editSubject" onclick="increaseChapter(${index})">+ Chapter</button>`;
 
-        container.innerHTML+=`
+        html += `
 
-        <div class="subjectCard ${completed ? "completed" : ""}">
+        <div class="subjectCard ${completed ? "completed" : ""}" data-subject-key="${index}">
 
             <div class="subjectLeft">
 
@@ -564,35 +544,226 @@ function renderSubjects(){
 
     });
 
+    return html;
+
+}
+
+function renderSubjectCards(container, order){
+
+    container.innerHTML = buildSubjectCardsHtml(order);
+
+}
+
+function animateSubjectReorder(container, order){
+
+    const existingCards =
+        container.querySelectorAll(".subjectCard");
+
+    // Only animate a pure reorder (same number of cards).
+    // Add/delete fall back to the plain instant render,
+    // exactly as before.
+    if(existingCards.length !== order.length){
+
+        renderSubjectCards(container, order);
+        return;
+
+    }
+
+    const firstRects = {};
+
+    existingCards.forEach(card=>{
+
+        const key = card.getAttribute("data-subject-key");
+
+        firstRects[key] = card.getBoundingClientRect();
+
+    });
+
+    renderSubjectCards(container, order);
+
+    const newCards =
+        container.querySelectorAll(".subjectCard");
+
+    newCards.forEach(card=>{
+
+        const key = card.getAttribute("data-subject-key");
+
+        const first = firstRects[key];
+
+        if(!first){
+            return;
+        }
+
+        const last = card.getBoundingClientRect();
+
+        const deltaX = first.left - last.left;
+        const deltaY = first.top - last.top;
+
+        if(deltaX === 0 && deltaY === 0){
+            return;
+        }
+
+        card.style.transition = "none";
+        card.style.transform =
+            `translate(${deltaX}px, ${deltaY}px)`;
+
+        requestAnimationFrame(()=>{
+
+            card.style.transition = "transform 380ms ease";
+            card.style.transform = "translate(0,0)";
+
+        });
+
+    });
+
+}
+
+function playSettleAnimation(container, index){
+
+    const card = container.querySelector(
+        `.subjectCard[data-subject-key="${index}"]`
+    );
+
+    if(!card){
+        return;
+    }
+
+    card.classList.add("settling");
+
+    // force a reflow so the browser registers the
+    // "settling" (pre-completion) look before we
+    // remove it, guaranteeing the transition plays
+    void card.offsetHeight;
+
+    requestAnimationFrame(()=>{
+
+        requestAnimationFrame(()=>{
+
+            card.classList.remove("settling");
+
+        });
+
+    });
+
+}
+
+function renderSubjects(){
+
+    const container = document.getElementById("allSubjects");
+
+    if(!container) return;
+
+    if(subjects.length===0){
+
+        container.innerHTML=`
+
+        <div class="empty">
+
+        📚
+
+        <p>No subjects added yet.</p>
+
+        <span>Add your first subject.</span>
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    animateSubjectReorder(container, getSubjectRenderOrder());
+
 }
 function increaseChapter(index){
 
-    if(subjects[index].completed < subjects[index].total){
+    if(subjects[index].completed >= subjects[index].total){
 
-        subjects[index].completed++;
+        return;
 
     }
+
+    const previousOrder = getSubjectRenderOrder();
+
+    const wasCompleted = isSubjectCompleted(subjects[index]);
+
+    subjects[index].completed++;
 
     localStorage.setItem(
         "subjects",
         JSON.stringify(subjects)
     );
 
-    renderSubjects();
     updateSubjectStats();
+
+    const nowCompleted = isSubjectCompleted(subjects[index]);
+
+    const container = document.getElementById("allSubjects");
+
+    const justCompleted = !wasCompleted && nowCompleted;
+
+    if(justCompleted && container){
+
+        // Phase A: update this card in place (same slot),
+        // then let it settle visually before reordering.
+        renderSubjectCards(container, previousOrder);
+
+        playSettleAnimation(container, index);
+
+        setTimeout(()=>{
+
+            renderSubjects();
+
+        }, 380);
+
+        return;
+
+    }
+
+    renderSubjects();
 
 }
 function deleteSubject(index){
 
-    subjects.splice(index,1);
+    const container = document.getElementById("allSubjects");
 
-    localStorage.setItem(
-        "subjects",
-        JSON.stringify(subjects)
-    );
+    const subjectRef = subjects[index];
 
-    renderSubjects();
-    updateSubjectStats();
+    const card = container
+        ? container.querySelector(`.subjectCard[data-subject-key="${index}"]`)
+        : null;
+
+    const finishDelete = () => {
+
+        const currentIndex = subjects.indexOf(subjectRef);
+
+        if(currentIndex === -1){
+            return;
+        }
+
+        subjects.splice(currentIndex,1);
+
+        localStorage.setItem(
+            "subjects",
+            JSON.stringify(subjects)
+        );
+
+        renderSubjects();
+        updateSubjectStats();
+
+    };
+
+    if(!card){
+
+        finishDelete();
+        return;
+
+    }
+
+    card.classList.add("removing");
+
+    setTimeout(finishDelete, 350);
 
 }
 function updateSubjectStats(){
