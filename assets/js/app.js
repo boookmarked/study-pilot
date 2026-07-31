@@ -467,15 +467,44 @@ function renderSubjects(){
 
     }
 
-    subjects.forEach((subject,index)=>{
+    const sortedSubjects = subjects
+
+        .map((subject,index)=>({subject,index}))
+
+        .sort((a,b)=>{
+
+            const aCompleted = isSubjectCompleted(a.subject);
+            const bCompleted = isSubjectCompleted(b.subject);
+
+            if(aCompleted === bCompleted){
+
+                return 0;
+
+            }
+
+            return aCompleted ? 1 : -1;
+
+        });
+
+    sortedSubjects.forEach(({subject,index})=>{
 
         const progress=Math.round(
             (subject.completed/subject.total)*100
         );
 
+        const completed = isSubjectCompleted(subject);
+
+        const badgeHtml = completed
+            ? `<span class="subjectBadge completed">✓ Completed</span>`
+            : `<span class="subjectBadge ${subject.difficulty.toLowerCase()}">${subject.difficulty}</span>`;
+
+        const addChapterHtml = completed
+            ? `<button class="editSubject" disabled>+ Chapter</button>`
+            : `<button class="editSubject" onclick="increaseChapter(${index})">+ Chapter</button>`;
+
         container.innerHTML+=`
 
-        <div class="subjectCard">
+        <div class="subjectCard ${completed ? "completed" : ""}">
 
             <div class="subjectLeft">
 
@@ -511,24 +540,13 @@ function renderSubjects(){
 
                 </p>
 
-                <span
-                class="subjectBadge ${subject.difficulty.toLowerCase()}">
-
-                ${subject.difficulty}
-
-                </span>
+                ${badgeHtml}
 
             </div>
 
             <div class="subjectRight">
 
-                <button
-                class="editSubject"
-                onclick="increaseChapter(${index})">
-
-                + Chapter
-
-                </button>
+                ${addChapterHtml}
 
                 <button
                 class="deleteSubject"

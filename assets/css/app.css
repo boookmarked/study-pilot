@@ -2729,3 +2729,46 @@ gap:18px;
 }
 
 }
+
+/* ================= SUBJECTS: COMPLETED STATE ================= */
+/* Narrowly scoped additions — base .subjectCard/.subjectBadge/
+   .editSubject rules above are untouched, so incomplete subjects
+   render exactly as before. */
+
+.subjectCard.completed .subjectLeft{
+
+opacity:.65;
+
+}
+
+.subjectCard.completed .subjectTop h2{
+
+text-decoration:line-through;
+
+color:#8A7A85;
+
+}
+
+.subjectCard.completed .subjectBadge.completed{
+
+background:#EDE3F5;
+
+color:#6B4E86;
+
+}
+
+.subjectCard.completed .editSubject:disabled{
+
+background:#D8D2DC;
+
+color:#9A8FA0;
+
+cursor:not-allowed;
+
+}
+
+.subjectCard.completed .editSubject:disabled:hover{
+
+background:#D8D2DC;
+
+}
