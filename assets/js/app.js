@@ -1766,16 +1766,6 @@ summary
 // (display only, reads buildStudyPlan())
 // ======================================
 
-const generatePlanBtn =
-document.getElementById("generatePlan");
-
-if(generatePlanBtn){
-
-generatePlanBtn.onclick =
-renderStudyPlan;
-
-}
-
 function renderStudyPlan(){
 
 const container =
