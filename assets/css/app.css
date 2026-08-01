@@ -2829,3 +2829,65 @@ transform:translateX(24px);
 pointer-events:none;
 
 }
+
+/* ================= PLANNER: TASK COMPLETION ================= */
+/* Scoped to .taskCard (Planner-exclusive class, not used on any
+   other page), so this cannot affect Dashboard/Subjects/Analytics. */
+
+.taskCheckLabel{
+
+display:flex;
+
+align-items:center;
+
+gap:10px;
+
+cursor:pointer;
+
+margin-bottom:8px;
+
+}
+
+.taskCheckbox{
+
+width:20px;
+
+height:20px;
+
+min-width:20px;
+
+cursor:pointer;
+
+accent-color:var(--primary);
+
+}
+
+.taskCard.completed{
+
+opacity:.7;
+
+transition:opacity .35s ease;
+
+}
+
+.taskCard.completed .left h3{
+
+text-decoration:line-through;
+
+color:var(--muted);
+
+transition:color .35s ease;
+
+}
+
+.taskCard.removing{
+
+opacity:0;
+
+transform:translateX(24px);
+
+transition:opacity .35s ease, transform .35s ease;
+
+pointer-events:none;
+
+}

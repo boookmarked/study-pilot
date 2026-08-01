@@ -142,11 +142,21 @@ tasks.forEach((task,index)=>{
 
 container.innerHTML+=`
 
-<div class="taskCard">
+<div class="taskCard ${task.completed ? "completed" : ""}" data-task-key="${index}">
 
 <div class="left">
 
+<label class="taskCheckLabel">
+
+<input
+type="checkbox"
+class="taskCheckbox"
+onclick="toggleTask(${index})"
+${task.completed ? "checked" : ""}>
+
 <h3>${task.title}</h3>
+
+</label>
 
 <p>${task.date}</p>
 
@@ -186,6 +196,24 @@ if(addButton){
 
 renderTasks();
 updatePlannerStats();
+
+window.addEventListener("storage", (event)=>{
+
+    if(event.key !== "tasks" && event.key !== "subjects"){
+
+        return;
+
+    }
+
+    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    subjects = JSON.parse(localStorage.getItem("subjects")) || [];
+
+    renderTasks();
+    updatePlannerStats();
+    renderStudyPlan();
+
+});
+
 addButton.onclick=()=>{
 
 const title=document.getElementById("taskTitle").value;
@@ -238,6 +266,7 @@ hoursInput.value="";
 
 renderTasks();
 updatePlannerStats();
+renderStudyPlan();
 
 }
 
@@ -272,16 +301,46 @@ function updatePlannerStats(){
 
 function deleteTask(index){
 
-    tasks.splice(index,1);
+    const container = document.getElementById("allTasks");
 
-    localStorage.setItem(
-        "tasks",
-        JSON.stringify(tasks)
-    );
+    const taskRef = tasks[index];
 
-    renderTasks();
-    updatePlannerStats();
-    updateProgress();
+    const card = container
+        ? container.querySelector(`.taskCard[data-task-key="${index}"]`)
+        : null;
+
+    const finishDelete = () => {
+
+        const currentIndex = tasks.indexOf(taskRef);
+
+        if(currentIndex === -1){
+            return;
+        }
+
+        tasks.splice(currentIndex,1);
+
+        localStorage.setItem(
+            "tasks",
+            JSON.stringify(tasks)
+        );
+
+        renderTasks();
+        updatePlannerStats();
+        updateProgress();
+        renderStudyPlan();
+
+    };
+
+    if(!card){
+
+        finishDelete();
+        return;
+
+    }
+
+    card.classList.add("removing");
+
+    setTimeout(finishDelete, 350);
 
 }
 
@@ -297,7 +356,19 @@ JSON.stringify(tasks)
 
 );
 
+const card = document.querySelector(
+    `.taskCard[data-task-key="${index}"]`
+);
+
+if(card){
+
+    card.classList.toggle("completed", tasks[index].completed);
+
+}
+
+updatePlannerStats();
 updateProgress();
+renderStudyPlan();
 
 }
 function updateProgress(){
@@ -376,6 +447,16 @@ function updateProgress(){
 // ======================================
 
 let subjects = JSON.parse(localStorage.getItem("subjects")) || [];
+
+// Safe point for the Planner's automatic plan generation:
+// both `tasks` and `subjects` are now initialized, and
+// `addButton` (declared earlier) is only non-null on the
+// Planner page, so this runs exactly once, Planner-only.
+if(addButton){
+
+    renderStudyPlan();
+
+}
 
 const addSubjectBtn = document.getElementById("addSubject");
 
