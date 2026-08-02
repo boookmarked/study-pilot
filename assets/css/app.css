@@ -1663,132 +1663,6 @@ width:0;
 .analytics-page .perfFillSubject{ background:var(--gold); }
 .analytics-page .perfFillChapter{ background:#2E7D32; }
 
-.analytics-page .perfConsistency{
-
-    padding-top:20px;
-
-    border-top:1px solid var(--border);
-
-    display:flex;
-
-    align-items:baseline;
-
-    flex-wrap:wrap;
-
-    gap:10px 16px;
-
-}
-
-.analytics-page .perfConsistencyLabel{
-
-    font-weight:600;
-
-    color:var(--text);
-
-    font-size:14.5px;
-
-}
-
-.analytics-page .perfConsistencyValue{
-
-    font-size:20px;
-
-    font-weight:700;
-
-    color:#5C3B73;
-
-}
-
-.analytics-page .perfConsistencyNote{
-
-    flex-basis:100%;
-
-    color:var(--muted);
-
-    font-size:13px;
-
-}
-
-/* ---------- Completion Breakdown ---------- */
-
-.analytics-page .breakdownRow{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:16px;
-
-    margin-bottom:18px;
-
-}
-
-.analytics-page .breakdownRow:last-child{
-
-    margin-bottom:0;
-
-}
-
-.analytics-page .breakdownLabel{
-
-    width:80px;
-
-    flex-shrink:0;
-
-    font-size:14px;
-
-    color:var(--text);
-
-    font-weight:600;
-
-}
-
-.analytics-page .breakdownTrack{
-
-    flex:1;
-
-    height:14px;
-
-    border-radius:50px;
-
-    background:var(--border);
-
-    overflow:hidden;
-
-}
-
-.analytics-page .breakdownFill{
-
-    height:100%;
-
-    border-radius:50px;
-
-    width:0%;
-
-    transition:width .6s ease;
-
-}
-
-.analytics-page .breakdownFillTask{ background:var(--primary); }
-.analytics-page .breakdownFillSubject{ background:var(--gold); }
-.analytics-page .breakdownFillChapter{ background:#2E7D32; }
-
-.analytics-page .breakdownPercent{
-
-    width:42px;
-
-    flex-shrink:0;
-
-    text-align:right;
-
-    font-weight:700;
-
-    color:var(--text);
-
-    font-size:14px;
-
-}
-
 /* ---------- Subject Performance (ranked) ---------- */
 
 .analytics-page .rankRow{
@@ -2007,74 +1881,6 @@ width:0;
 
 }
 
-/* ---------- Current Performance summary ---------- */
-
-.analytics-page .summaryGrid{
-
-    display:grid;
-
-    grid-template-columns:repeat(3,1fr);
-
-    gap:20px;
-
-}
-
-.analytics-page .summaryTile{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:4px;
-
-    padding:18px;
-
-    border-radius:16px;
-
-    background:var(--cream);
-
-}
-
-.analytics-page .summaryLabel{
-
-    font-size:12px;
-
-    color:var(--muted);
-
-    text-transform:uppercase;
-
-    letter-spacing:.05em;
-
-}
-
-.analytics-page .summaryValue{
-
-    font-size:22px;
-
-    font-weight:700;
-
-    color:var(--primary);
-
-}
-
-.analytics-page .summaryValue small{
-
-    font-size:12px;
-
-    font-weight:500;
-
-    color:var(--muted);
-
-}
-
-.analytics-page .summarySub{
-
-    font-size:12.5px;
-
-    color:var(--muted);
-
-}
-
 /* ---------- Insights + Needs Attention ---------- */
 
 .analytics-page .analyticsSupportGrid{
@@ -2177,19 +1983,12 @@ width:0;
 
 }
 
-.analytics-page .summaryGrid{
-
-    grid-template-columns:1fr;
-
-}
-
 .analytics-page .analyticsSupportGrid{
 
     grid-template-columns:1fr;
 
 }
 
-.analytics-page .breakdownLabel,
 .analytics-page .workloadName{
 
     width:64px;

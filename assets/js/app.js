@@ -927,14 +927,6 @@ function buildAnalyticsReport(){
 
     const chapterRate = summary.overallSubjectProgress;
 
-    const hasAnyData = summary.totalTasks > 0 || summary.totalSubjects > 0;
-
-    const rates = [taskRate, subjectRate, chapterRate];
-
-    const consistency = hasAnyData
-        ? Math.max(0, 100 - (Math.max(...rates) - Math.min(...rates)))
-        : 0;
-
     const rankedSubjects = subjects
 
         .map(subject => ({
@@ -992,7 +984,6 @@ function buildAnalyticsReport(){
         taskRate,
         subjectRate,
         chapterRate,
-        consistency,
         rankedSubjects,
         subjectWorkload,
         maxSubjectHours,
@@ -1010,7 +1001,7 @@ function buildAnalyticsInsights(report){
 
     const insights = [];
 
-    const { summary, rankedSubjects, subjectWorkload, taskRate, chapterRate, highPriorityPercent, pendingTasks } = report;
+    const { summary, rankedSubjects, subjectWorkload, taskRate, subjectRate, chapterRate, highPriorityPercent, pendingTasks } = report;
 
     if(rankedSubjects.length > 0){
 
@@ -1044,23 +1035,29 @@ function buildAnalyticsInsights(report){
 
     }
 
-    if(summary.totalTasks > 0 && summary.totalChapters > 0){
+    if(summary.totalTasks > 0 || summary.totalSubjects > 0){
 
-        if(taskRate > chapterRate + 10){
+        const rateEntries = [
 
-            insights.push("Your tasks are progressing faster than your subjects.");
+            {label:"task", value:taskRate},
+            {label:"subject", value:subjectRate},
+            {label:"chapter", value:chapterRate}
 
-        }
+        ];
 
-        else if(chapterRate > taskRate + 10){
+        const maxEntry = rateEntries.reduce((a,b) => b.value > a.value ? b : a);
 
-            insights.push("Your subjects are progressing faster than your tasks.");
+        const minEntry = rateEntries.reduce((a,b) => b.value < a.value ? b : a);
 
-        }
+        const gap = maxEntry.value - minEntry.value;
 
-        else{
+        if(gap >= 20){
 
-            insights.push("Your tasks and subjects are progressing at a similar pace.");
+            insights.push(
+
+                `Your ${maxEntry.label} completion (${maxEntry.value}%) is well ahead of your ${minEntry.label} completion (${minEntry.value}%).`
+
+            );
 
         }
 
@@ -1135,7 +1132,6 @@ function loadAnalytics(){
         taskRate,
         subjectRate,
         chapterRate,
-        consistency,
         rankedSubjects,
         subjectWorkload,
         maxSubjectHours,
@@ -1156,7 +1152,6 @@ function loadAnalytics(){
     const perfTaskBar = document.getElementById("perfTaskBar");
     const perfSubjectBar = document.getElementById("perfSubjectBar");
     const perfChapterBar = document.getElementById("perfChapterBar");
-    const perfConsistency = document.getElementById("perfConsistency");
 
     if(perfOverall) perfOverall.textContent = summary.overallProgress + "%";
     if(perfTaskRate) perfTaskRate.textContent = taskRate + "%";
@@ -1165,25 +1160,6 @@ function loadAnalytics(){
     if(perfTaskBar) perfTaskBar.style.width = taskRate + "%";
     if(perfSubjectBar) perfSubjectBar.style.width = subjectRate + "%";
     if(perfChapterBar) perfChapterBar.style.width = chapterRate + "%";
-    if(perfConsistency) perfConsistency.textContent = consistency + "%";
-
-    // ==========================
-    // COMPLETION BREAKDOWN
-    // ==========================
-
-    const breakdownTaskFill = document.getElementById("breakdownTaskFill");
-    const breakdownSubjectFill = document.getElementById("breakdownSubjectFill");
-    const breakdownChapterFill = document.getElementById("breakdownChapterFill");
-    const breakdownTaskPercent = document.getElementById("breakdownTaskPercent");
-    const breakdownSubjectPercent = document.getElementById("breakdownSubjectPercent");
-    const breakdownChapterPercent = document.getElementById("breakdownChapterPercent");
-
-    if(breakdownTaskFill) breakdownTaskFill.style.width = taskRate + "%";
-    if(breakdownSubjectFill) breakdownSubjectFill.style.width = subjectRate + "%";
-    if(breakdownChapterFill) breakdownChapterFill.style.width = chapterRate + "%";
-    if(breakdownTaskPercent) breakdownTaskPercent.textContent = taskRate + "%";
-    if(breakdownSubjectPercent) breakdownSubjectPercent.textContent = subjectRate + "%";
-    if(breakdownChapterPercent) breakdownChapterPercent.textContent = chapterRate + "%";
 
     // ==========================
     // SUBJECT PERFORMANCE (ranked)
@@ -1336,51 +1312,6 @@ ${tagHtml}
     if(workloadStatus){
 
         workloadStatus.textContent = `${workloadLevel.emoji} ${workloadLevel.label}`;
-
-    }
-
-    // ==========================
-    // CURRENT PERFORMANCE
-    // (completed vs remaining snapshot)
-    // ==========================
-
-    const completionSummary = document.getElementById("completionSummary");
-
-    if(completionSummary){
-
-        completionSummary.innerHTML = `
-
-<div class="summaryTile">
-
-<span class="summaryLabel">Tasks</span>
-
-<span class="summaryValue">${summary.completedTasks} <small>completed</small></span>
-
-<span class="summarySub">${summary.pendingTasks} remaining</span>
-
-</div>
-
-<div class="summaryTile">
-
-<span class="summaryLabel">Subjects</span>
-
-<span class="summaryValue">${summary.completedSubjects} <small>completed</small></span>
-
-<span class="summarySub">${summary.activeSubjects} remaining</span>
-
-</div>
-
-<div class="summaryTile">
-
-<span class="summaryLabel">Chapters</span>
-
-<span class="summaryValue">${summary.completedChapters} <small>completed</small></span>
-
-<span class="summarySub">${summary.totalChapters - summary.completedChapters} remaining</span>
-
-</div>
-
-`;
 
     }
 
