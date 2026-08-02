@@ -106,7 +106,7 @@ Logout
 
 <!-- MAIN -->
 
-<main class="content">
+<main class="content analytics-page">
 
 <section class="hero">
 
@@ -124,131 +124,197 @@ Know where you stand before the exams do.
 
 </section>
 
-<!-- TOP CARDS -->
+<!-- STUDY PERFORMANCE -->
 
-<section class="planner-info">
+<section class="perfCard">
 
-<div class="info-card">
+<div class="perfHeader">
 
-<h3>Total Tasks</h3>
+<h2>Study Performance</h2>
 
-<h1 id="analyticsTasks">
+<div class="perfOverall">
 
-0
+<span class="perfOverallValue" id="perfOverall">0%</span>
 
-</h1>
-
-</div>
-
-<div class="info-card">
-
-<h3>Completed</h3>
-
-<h1 id="analyticsCompleted">
-
-0
-
-</h1>
+<span class="perfOverallLabel">Overall Progress</span>
 
 </div>
 
-<div class="info-card">
+</div>
 
-<h3>Subjects</h3>
+<p class="perfCaption">
 
-<h1 id="analyticsSubjects">
+Weighted across completed tasks and completed chapters.
 
-0
+</p>
 
-</h1>
+<div class="perfMetrics">
+
+<div class="perfMetric">
+
+<span class="perfMetricLabel">Task Completion</span>
+
+<span class="perfMetricValue" id="perfTaskRate">0%</span>
+
+<div class="perfMetricTrack"><div class="perfMetricFill perfFillTask" id="perfTaskBar"></div></div>
 
 </div>
 
-<div class="info-card">
+<div class="perfMetric">
 
-<h3>Study Score</h3>
+<span class="perfMetricLabel">Subject Completion</span>
 
-<h1 id="studyScore">
+<span class="perfMetricValue" id="perfSubjectRate">0%</span>
 
-0
+<div class="perfMetricTrack"><div class="perfMetricFill perfFillSubject" id="perfSubjectBar"></div></div>
 
-</h1>
+</div>
+
+<div class="perfMetric">
+
+<span class="perfMetricLabel">Chapter Completion</span>
+
+<span class="perfMetricValue" id="perfChapterRate">0%</span>
+
+<div class="perfMetricTrack"><div class="perfMetricFill perfFillChapter" id="perfChapterBar"></div></div>
+
+</div>
+
+</div>
+
+<div class="perfConsistency">
+
+<span class="perfConsistencyLabel">Consistency Score</span>
+
+<span class="perfConsistencyValue" id="perfConsistency">0%</span>
+
+<p class="perfConsistencyNote" id="perfConsistencyNote">
+
+How evenly your tasks, subjects and chapters are progressing together.
+
+</p>
 
 </div>
 
 </section>
 
-<!-- MAIN GRID -->
+<!-- COMPLETION BREAKDOWN -->
 
-<section class="analyticsGrid">
+<section class="analyticsBlock">
 
-<div class="analyticsCard">
+<h2>Completion Breakdown</h2>
 
-<h2>
+<p class="blockCaption">How completion compares across the different kinds of work.</p>
 
-Overall Progress
+<div class="breakdownRow">
 
-</h2>
+<span class="breakdownLabel">Tasks</span>
 
-<div class="progress-bar">
+<div class="breakdownTrack"><div class="breakdownFill breakdownFillTask" id="breakdownTaskFill"></div></div>
 
-<div
-class="progress-fill"
-id="overallProgress">
+<span class="breakdownPercent" id="breakdownTaskPercent">0%</span>
 
 </div>
 
+<div class="breakdownRow">
+
+<span class="breakdownLabel">Subjects</span>
+
+<div class="breakdownTrack"><div class="breakdownFill breakdownFillSubject" id="breakdownSubjectFill"></div></div>
+
+<span class="breakdownPercent" id="breakdownSubjectPercent">0%</span>
+
 </div>
 
-<p id="overallProgressText">
+<div class="breakdownRow">
 
-0%
+<span class="breakdownLabel">Chapters</span>
+
+<div class="breakdownTrack"><div class="breakdownFill breakdownFillChapter" id="breakdownChapterFill"></div></div>
+
+<span class="breakdownPercent" id="breakdownChapterPercent">0%</span>
+
+</div>
+
+</section>
+
+<!-- SUBJECT PERFORMANCE -->
+
+<section class="analyticsBlock">
+
+<h2>Subject Performance</h2>
+
+<p class="blockCaption">Subjects ranked by completion percentage.</p>
+
+<div id="subjectRankList">
+
+</div>
+
+</section>
+
+<!-- WORKLOAD ANALYSIS -->
+
+<section class="analyticsBlock">
+
+<div class="workloadHeader">
+
+<h2>Workload Analysis</h2>
+
+<span class="workloadStatus" id="workloadStatus">—</span>
+
+</div>
+
+<p class="blockCaption">Where your remaining work is concentrated.</p>
+
+<div id="workloadSubjectList">
+
+</div>
+
+<p class="workloadTaskLine" id="workloadTaskLine">
 
 </p>
 
-</div>
+</section>
 
-<div class="analyticsCard">
+<!-- CURRENT PERFORMANCE -->
 
-<h2>
+<section class="analyticsBlock">
 
-Upcoming Exams
+<h2>Current Performance</h2>
 
-</h2>
+<p class="blockCaption">
 
-<div id="examList">
-
-</div>
-
-</div>
-
-<div class="analyticsCard">
-
-<h2>
-
-Subject Progress
-
-</h2>
-
-<div id="subjectProgressList">
-
-</div>
-
-</div>
-
-<div class="analyticsCard">
-
-<h2>
-
-Study Insight
-
-</h2>
-
-<p id="studyInsight">
-
-Keep going 🌿
+A snapshot of where things stand right now. StudyPilot doesn't yet track completion history over time, so trends aren't shown — only your current totals.
 
 </p>
+
+<div class="summaryGrid" id="completionSummary">
+
+</div>
+
+</section>
+
+<!-- INSIGHTS + ATTENTION NEEDED -->
+
+<section class="analyticsSupportGrid">
+
+<div class="analyticsBlock analyticsSupportCard">
+
+<h2>Insights</h2>
+
+<div id="analyticsInsightsList">
+
+</div>
+
+</div>
+
+<div class="analyticsBlock analyticsSupportCard attentionCard">
+
+<h2>Needs Attention</h2>
+
+<div id="attentionList">
+
+</div>
 
 </div>
 

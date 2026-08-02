@@ -1468,87 +1468,436 @@ width:0;
                     ANALYTICS PAGE
 ======================================================= */
 
-.analyticsGrid{
+.analytics-page .hero{
 
-    display:grid;
-
-    grid-template-columns:repeat(2,1fr);
-
-    gap:25px;
-
-    margin-top:30px;
+    margin-bottom:10px;
 
 }
 
-.analyticsCard{
+.analytics-page section{
 
-    background:#FCFCFA;
+    margin-top:28px;
 
-    border-radius:22px;
+}
 
-    padding:28px;
+/* ---------- shared card shell ---------- */
+
+.analytics-page .perfCard,
+.analytics-page .analyticsBlock{
+
+    background:var(--card);
+
+    border-radius:24px;
+
+    padding:32px;
 
     box-shadow:0 8px 25px rgba(0,0,0,.05);
 
     border:1px solid rgba(125,79,159,.12);
 
-    transition:.3s;
+    transition:transform .25s ease, box-shadow .25s ease;
 
 }
 
-.analyticsCard:hover{
+.analytics-page .perfCard:hover,
+.analytics-page .analyticsBlock:hover{
 
-    transform:translateY(-4px);
+    transform:translateY(-3px);
 
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
+    box-shadow:0 14px 32px rgba(0,0,0,.08);
 
 }
 
-.analyticsCard h2{
+.analytics-page .perfCard h2,
+.analytics-page .analyticsBlock h2{
 
     color:#5C3B73;
 
+    font-size:21px;
+
+    margin-bottom:8px;
+
+}
+
+.analytics-page .blockCaption{
+
+    color:var(--muted);
+
+    font-size:13.5px;
+
     margin-bottom:22px;
+
+}
+
+/* ---------- Study Performance ---------- */
+
+.analytics-page .perfHeader{
+
+    display:flex;
+
+    align-items:flex-end;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:4px;
+
+}
+
+.analytics-page .perfOverall{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-end;
+
+}
+
+.analytics-page .perfOverallValue{
+
+    font-family:'Cormorant Garamond',serif;
+
+    font-size:32px;
+
+    font-weight:700;
+
+    color:var(--primary);
+
+    line-height:1;
+
+}
+
+.analytics-page .perfOverallLabel{
+
+    font-size:11.5px;
+
+    color:var(--muted);
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+
+    margin-top:4px;
+
+}
+
+.analytics-page .perfCaption{
+
+    color:var(--muted);
+
+    font-size:13.5px;
+
+    margin-bottom:26px;
+
+}
+
+.analytics-page .perfMetrics{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:26px;
+
+    margin-bottom:26px;
+
+}
+
+.analytics-page .perfMetric{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+.analytics-page .perfMetricLabel{
+
+    font-size:13px;
+
+    color:var(--muted);
+
+}
+
+.analytics-page .perfMetricValue{
 
     font-size:24px;
 
+    font-weight:700;
+
+    color:var(--text);
+
 }
 
-/* =============================
-      Overall Progress
-============================= */
+.analytics-page .perfMetricTrack{
 
-#overallProgressText{
+    width:100%;
 
-    margin-top:15px;
+    height:8px;
 
-    font-size:18px;
+    border-radius:50px;
 
-    color:#666;
+    background:var(--border);
+
+    overflow:hidden;
+
+}
+
+.analytics-page .perfMetricFill{
+
+    height:100%;
+
+    border-radius:50px;
+
+    width:0%;
+
+    transition:width .6s ease;
+
+}
+
+.analytics-page .perfFillTask{ background:var(--primary); }
+.analytics-page .perfFillSubject{ background:var(--gold); }
+.analytics-page .perfFillChapter{ background:#2E7D32; }
+
+.analytics-page .perfConsistency{
+
+    padding-top:20px;
+
+    border-top:1px solid var(--border);
+
+    display:flex;
+
+    align-items:baseline;
+
+    flex-wrap:wrap;
+
+    gap:10px 16px;
+
+}
+
+.analytics-page .perfConsistencyLabel{
 
     font-weight:600;
 
-}
+    color:var(--text);
 
-/* =============================
-      Subject Progress
-============================= */
-
-.subjectProgressRow{
-
-    margin-bottom:20px;
+    font-size:14.5px;
 
 }
 
-.subjectProgressRow:last-child{
+.analytics-page .perfConsistencyValue{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#5C3B73;
+
+}
+
+.analytics-page .perfConsistencyNote{
+
+    flex-basis:100%;
+
+    color:var(--muted);
+
+    font-size:13px;
+
+}
+
+/* ---------- Completion Breakdown ---------- */
+
+.analytics-page .breakdownRow{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+
+    margin-bottom:18px;
+
+}
+
+.analytics-page .breakdownRow:last-child{
 
     margin-bottom:0;
 
 }
 
-.subjectProgressHeader{
+.analytics-page .breakdownLabel{
+
+    width:80px;
+
+    flex-shrink:0;
+
+    font-size:14px;
+
+    color:var(--text);
+
+    font-weight:600;
+
+}
+
+.analytics-page .breakdownTrack{
+
+    flex:1;
+
+    height:14px;
+
+    border-radius:50px;
+
+    background:var(--border);
+
+    overflow:hidden;
+
+}
+
+.analytics-page .breakdownFill{
+
+    height:100%;
+
+    border-radius:50px;
+
+    width:0%;
+
+    transition:width .6s ease;
+
+}
+
+.analytics-page .breakdownFillTask{ background:var(--primary); }
+.analytics-page .breakdownFillSubject{ background:var(--gold); }
+.analytics-page .breakdownFillChapter{ background:#2E7D32; }
+
+.analytics-page .breakdownPercent{
+
+    width:42px;
+
+    flex-shrink:0;
+
+    text-align:right;
+
+    font-weight:700;
+
+    color:var(--text);
+
+    font-size:14px;
+
+}
+
+/* ---------- Subject Performance (ranked) ---------- */
+
+.analytics-page .rankRow{
+
+    margin-bottom:20px;
+
+}
+
+.analytics-page .rankRow:last-child{
+
+    margin-bottom:0;
+
+}
+
+.analytics-page .rankRowTop{
 
     display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:8px;
+
+}
+
+.analytics-page .rankName{
+
+    font-weight:600;
+
+    color:var(--text);
+
+    font-size:15px;
+
+}
+
+.analytics-page .rankPercent{
+
+    margin-left:auto;
+
+    font-weight:700;
+
+    color:#5C3B73;
+
+    font-size:15px;
+
+}
+
+.analytics-page .rankTag{
+
+    font-size:11px;
+
+    font-weight:600;
+
+    padding:3px 10px;
+
+    border-radius:50px;
+
+}
+
+.analytics-page .rankTagStrong{
+
+    background:#DDF7E6;
+
+    color:#2E7D32;
+
+}
+
+.analytics-page .rankTagWeak{
+
+    background:#FFE0E5;
+
+    color:#B4233C;
+
+}
+
+.analytics-page .rankTrack{
+
+    width:100%;
+
+    height:10px;
+
+    border-radius:50px;
+
+    background:var(--border);
+
+    overflow:hidden;
+
+}
+
+.analytics-page .rankFill{
+
+    height:100%;
+
+    border-radius:50px;
+
+    background:linear-gradient(90deg, var(--primary), #7D4F9F);
+
+    transition:width .6s ease;
+
+}
+
+/* ---------- Workload Analysis ---------- */
+
+.analytics-page .workloadHeader{
+
+    display:flex;
+
+    align-items:center;
 
     justify-content:space-between;
 
@@ -1556,147 +1905,300 @@ width:0;
 
 }
 
-.subjectProgressHeader span{
+.analytics-page .workloadHeader h2{
 
-    color:#5C3B73;
+    margin-bottom:0;
+
+}
+
+.analytics-page .workloadStatus{
+
+    font-weight:600;
+
+    font-size:14px;
+
+    color:var(--text);
+
+    background:var(--border);
+
+    padding:5px 14px;
+
+    border-radius:50px;
+
+}
+
+.analytics-page .workloadRow{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    margin-bottom:14px;
+
+}
+
+.analytics-page .workloadName{
+
+    width:100px;
+
+    flex-shrink:0;
+
+    font-size:14px;
+
+    color:var(--text);
 
     font-weight:600;
 
 }
 
-.subjectProgressBar{
+.analytics-page .workloadTrack{
 
-    width:100%;
+    flex:1;
 
     height:10px;
 
-    background:#ECE6F2;
-
     border-radius:50px;
+
+    background:var(--border);
 
     overflow:hidden;
 
 }
 
-.subjectProgressFill{
+.analytics-page .workloadFill{
 
     height:100%;
 
     border-radius:50px;
 
-    background:linear-gradient(
-        90deg,
-        #7D4F9F,
-        #B57EDC
-    );
+    background:var(--gold);
 
-    transition:.4s;
+    transition:width .6s ease;
 
 }
 
-/* =============================
-      Upcoming Exams
-============================= */
+.analytics-page .workloadHours{
 
-.examItem{
+    width:56px;
+
+    flex-shrink:0;
+
+    text-align:right;
+
+    font-size:13.5px;
+
+    color:var(--muted);
+
+}
+
+.analytics-page .workloadTaskLine{
+
+    margin-top:16px;
+
+    padding-top:16px;
+
+    border-top:1px solid var(--border);
+
+    font-size:13.5px;
+
+    color:var(--muted);
+
+}
+
+/* ---------- Current Performance summary ---------- */
+
+.analytics-page .summaryGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:20px;
+
+}
+
+.analytics-page .summaryTile{
 
     display:flex;
 
-    justify-content:space-between;
+    flex-direction:column;
 
-    align-items:center;
+    gap:4px;
 
-    padding:15px 0;
+    padding:18px;
 
-    border-bottom:1px solid #EEE;
+    border-radius:16px;
+
+    background:var(--cream);
 
 }
 
-.examItem:last-child{
+.analytics-page .summaryLabel{
+
+    font-size:12px;
+
+    color:var(--muted);
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+
+}
+
+.analytics-page .summaryValue{
+
+    font-size:22px;
+
+    font-weight:700;
+
+    color:var(--primary);
+
+}
+
+.analytics-page .summaryValue small{
+
+    font-size:12px;
+
+    font-weight:500;
+
+    color:var(--muted);
+
+}
+
+.analytics-page .summarySub{
+
+    font-size:12.5px;
+
+    color:var(--muted);
+
+}
+
+/* ---------- Insights + Needs Attention ---------- */
+
+.analytics-page .analyticsSupportGrid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:24px;
+
+}
+
+.analytics-page .insightLine{
+
+    font-size:14px;
+
+    color:var(--text);
+
+    padding:10px 0;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.analytics-page .insightLine:last-child{
 
     border-bottom:none;
 
-}
-
-.examSubject{
-
-    font-weight:600;
-
-    color:#5C3B73;
+    padding-bottom:0;
 
 }
 
-.examDays{
+.analytics-page .attentionCard{
 
-    color:#A855F7;
-
-    font-weight:600;
+    border-left:4px solid #B4233C;
 
 }
 
-/* =============================
-        Study Insight
-============================= */
+.analytics-page .attentionLine{
 
-#studyInsight{
+    font-size:14px;
 
-    font-size:17px;
+    color:var(--text);
 
-    line-height:1.8;
+    padding:10px 0;
 
-    color:#555;
+    border-bottom:1px solid var(--border);
 
 }
 
-/* =============================
-        Study Score
-============================= */
+.analytics-page .attentionLine:last-child{
 
-#studyScore{
+    border-bottom:none;
 
-    color:#7D4F9F;
-
-    font-size:42px;
+    padding-bottom:0;
 
 }
 
-/* =============================
-        Empty States
-============================= */
+/* ---------- Empty state ---------- */
 
-.analyticsEmpty{
+.analytics-page .analyticsEmpty{
 
     text-align:center;
 
-    color:#777;
+    padding:30px 10px;
 
-    padding:45px 15px;
-
-}
-
-.analyticsEmpty span{
-
-    font-size:60px;
-
-    display:block;
-
-    margin-bottom:12px;
+    color:var(--muted);
 
 }
 
-/* =============================
-        Responsive
-============================= */
+.analytics-page .analyticsEmpty p{
+
+    margin-top:8px;
+
+    font-size:14px;
+
+}
+
+/* ---------- Responsive ---------- */
 
 @media(max-width:900px){
 
-.analyticsGrid{
+.analytics-page .perfMetrics{
 
-grid-template-columns:1fr;
+    grid-template-columns:1fr;
+
+}
+
+.analytics-page .perfHeader{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+}
+
+.analytics-page .perfOverall{
+
+    align-items:flex-start;
+
+}
+
+.analytics-page .summaryGrid{
+
+    grid-template-columns:1fr;
+
+}
+
+.analytics-page .analyticsSupportGrid{
+
+    grid-template-columns:1fr;
+
+}
+
+.analytics-page .breakdownLabel,
+.analytics-page .workloadName{
+
+    width:64px;
 
 }
 
 }
+
+
 /* ======================================================
                     SETTINGS PAGE
 ====================================================== */

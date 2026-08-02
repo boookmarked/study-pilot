@@ -907,301 +907,516 @@ function updateSubjectStats(){
 // ANALYTICS
 // ======================================
 
-const analyticsTasks = document.getElementById("analyticsTasks");
+const analyticsRoot = document.getElementById("perfOverall");
 
-if(analyticsTasks){
+if(analyticsRoot){
 
     loadAnalytics();
 
 }
 
-function loadAnalytics(){
+function buildAnalyticsReport(){
 
-    const analyticsCompleted =
-    document.getElementById("analyticsCompleted");
+    const {plan, summary} = buildStudyPlan();
 
-    const analyticsSubjects =
-    document.getElementById("analyticsSubjects");
+    const taskRate = summary.overallTaskProgress;
 
-    const studyScore =
-    document.getElementById("studyScore");
+    const subjectRate = summary.totalSubjects > 0
+        ? Math.round((summary.completedSubjects/summary.totalSubjects)*100)
+        : 0;
 
-    const overallFill =
-    document.getElementById("overallProgress");
+    const chapterRate = summary.overallSubjectProgress;
 
-    const overallText =
-    document.getElementById("overallProgressText");
+    const hasAnyData = summary.totalTasks > 0 || summary.totalSubjects > 0;
 
-    const examList =
-    document.getElementById("examList");
+    const rates = [taskRate, subjectRate, chapterRate];
 
-    const subjectProgress =
-    document.getElementById("subjectProgressList");
+    const consistency = hasAnyData
+        ? Math.max(0, 100 - (Math.max(...rates) - Math.min(...rates)))
+        : 0;
 
-    const studyInsight =
-    document.getElementById("studyInsight");
+    const rankedSubjects = subjects
 
+        .map(subject => ({
 
+            name: subject.name,
 
-    // ==========================
-    // BASIC COUNTS
-    // ==========================
+            percent: subject.total > 0
+                ? Math.round((subject.completed/subject.total)*100)
+                : 0,
 
-    const totalTasks = tasks.length;
+            remainingChapters: subject.total - subject.completed
 
-    const completedTasks =
-    tasks.filter(task=>task.completed).length;
+        }))
 
-    const totalSubjects =
-    subjects.length;
+        .sort((a,b) => b.percent - a.percent);
 
+    const subjectWorkload = subjects
 
+        .map(subject => ({
 
-    analyticsTasks.textContent = totalTasks;
+            name: subject.name,
 
-    analyticsCompleted.textContent = completedTasks;
+            hours: +(((subject.total - subject.completed) * 45) / 60).toFixed(1)
 
-    analyticsSubjects.textContent = totalSubjects;
+        }))
 
+        .filter(s => s.hours > 0)
 
+        .sort((a,b) => b.hours - a.hours);
 
-    // ==========================
-    // OVERALL PROGRESS
-    // ==========================
+    const maxSubjectHours = subjectWorkload.length > 0
+        ? subjectWorkload[0].hours
+        : 0;
 
-    let progress = 0;
+    const pendingTasks = tasks.filter(t => !t.completed);
 
-    if(totalTasks>0){
+    const pendingTaskHours = +pendingTasks.reduce(
 
-        progress = Math.round(
-        (completedTasks/totalTasks)*100);
+        (sum,t) => sum + (t.estimatedHours && t.estimatedHours > 0 ? t.estimatedHours : 1),
+        0
 
-    }
+    ).toFixed(1);
 
-    overallFill.style.width = progress + "%";
+    const highPriorityPending = pendingTasks.filter(t => t.priority === "High").length;
 
-    overallText.textContent =
-    progress + "% Completed";
+    const highPriorityPercent = pendingTasks.length > 0
+        ? Math.round((highPriorityPending/pendingTasks.length)*100)
+        : 0;
 
+    const workloadLevel = getWorkloadLevel(summary, plan);
 
+    return {
 
-    // ==========================
-    // STUDY SCORE
-    // ==========================
+        summary,
+        taskRate,
+        subjectRate,
+        chapterRate,
+        consistency,
+        rankedSubjects,
+        subjectWorkload,
+        maxSubjectHours,
+        pendingTasks,
+        pendingTaskHours,
+        highPriorityPending,
+        highPriorityPercent,
+        workloadLevel
 
-    let score = progress;
+    };
 
-    if(totalSubjects>0){
+}
 
-        let subjectProgressValue = 0;
+function buildAnalyticsInsights(report){
 
-        subjects.forEach(subject=>{
+    const insights = [];
 
-            subjectProgressValue +=
+    const { summary, rankedSubjects, subjectWorkload, taskRate, chapterRate, highPriorityPercent, pendingTasks } = report;
 
-            (subject.completed/subject.total)*100;
+    if(rankedSubjects.length > 0){
 
-        });
+        const strongest = rankedSubjects[0];
 
-        subjectProgressValue /= totalSubjects;
+        insights.push(
 
-        score = Math.round(
-
-            (progress + subjectProgressValue)/2
+            `${strongest.name} has the highest completion rate at ${strongest.percent}%.`
 
         );
 
     }
 
-    studyScore.textContent = score + "/100";
+    if(subjectWorkload.length > 0){
 
+        insights.push(
 
+            `Most remaining work is concentrated in ${subjectWorkload[0].name}.`
 
-    // ==========================
-    // UPCOMING EXAMS
-    // ==========================
-
-    examList.innerHTML="";
-
-    if(subjects.length===0){
-
-        examList.innerHTML=`
-
-        <div class="analyticsEmpty">
-
-        📚
-
-        <p>No subjects yet.</p>
-
-        </div>
-
-        `;
+        );
 
     }
 
-    else{
+    if(pendingTasks.length > 0 && highPriorityPercent > 0){
 
-        const today = new Date();
+        insights.push(
 
-        subjects.forEach(subject=>{
+            `High-priority tasks make up ${highPriorityPercent}% of your unfinished tasks.`
 
-            const exam = new Date(subject.exam);
+        );
 
-            const days = Math.ceil(
+    }
 
-                (exam-today)
+    if(summary.totalTasks > 0 && summary.totalChapters > 0){
 
-                /(1000*60*60*24)
+        if(taskRate > chapterRate + 10){
 
-            );
+            insights.push("Your tasks are progressing faster than your subjects.");
 
-            examList.innerHTML += `
+        }
 
-            <div class="examItem">
+        else if(chapterRate > taskRate + 10){
 
-                <div>
+            insights.push("Your subjects are progressing faster than your tasks.");
 
-                    <div class="examSubject">
+        }
 
-                        ${subject.name}
+        else{
 
-                    </div>
+            insights.push("Your tasks and subjects are progressing at a similar pace.");
 
-                </div>
+        }
 
-                <div class="examDays">
+    }
 
-                    ${days} days
+    if(insights.length === 0){
 
-                </div>
+        insights.push("Add a few tasks and subjects to start seeing insights here.");
 
-            </div>
+    }
 
-            `;
+    return insights;
+
+}
+
+function buildAttentionItems(report){
+
+    const items = [];
+
+    const { rankedSubjects, subjectWorkload, highPriorityPending } = report;
+
+    if(rankedSubjects.length > 0){
+
+        const weakest = rankedSubjects[rankedSubjects.length - 1];
+
+        if(weakest.percent < 70){
+
+            items.push(`${weakest.name} — ${weakest.percent}% complete`);
+
+        }
+
+    }
+
+    if(highPriorityPending > 0){
+
+        items.push(
+
+            `${highPriorityPending} high-priority task${highPriorityPending === 1 ? "" : "s"} remain${highPriorityPending === 1 ? "s" : ""}`
+
+        );
+
+    }
+
+    if(subjectWorkload.length > 0){
+
+        const heaviest = subjectWorkload[0];
+
+        items.push(
+
+            `${heaviest.name} has the largest remaining workload (${heaviest.hours} hrs)`
+
+        );
+
+    }
+
+    if(items.length === 0){
+
+        items.push("You're on top of everything right now. 🎉");
+
+    }
+
+    return items;
+
+}
+
+function loadAnalytics(){
+
+    const report = buildAnalyticsReport();
+
+    const {
+        summary,
+        taskRate,
+        subjectRate,
+        chapterRate,
+        consistency,
+        rankedSubjects,
+        subjectWorkload,
+        maxSubjectHours,
+        pendingTasks,
+        pendingTaskHours,
+        highPriorityPending,
+        workloadLevel
+    } = report;
+
+    // ==========================
+    // STUDY PERFORMANCE
+    // ==========================
+
+    const perfOverall = document.getElementById("perfOverall");
+    const perfTaskRate = document.getElementById("perfTaskRate");
+    const perfSubjectRate = document.getElementById("perfSubjectRate");
+    const perfChapterRate = document.getElementById("perfChapterRate");
+    const perfTaskBar = document.getElementById("perfTaskBar");
+    const perfSubjectBar = document.getElementById("perfSubjectBar");
+    const perfChapterBar = document.getElementById("perfChapterBar");
+    const perfConsistency = document.getElementById("perfConsistency");
+
+    if(perfOverall) perfOverall.textContent = summary.overallProgress + "%";
+    if(perfTaskRate) perfTaskRate.textContent = taskRate + "%";
+    if(perfSubjectRate) perfSubjectRate.textContent = subjectRate + "%";
+    if(perfChapterRate) perfChapterRate.textContent = chapterRate + "%";
+    if(perfTaskBar) perfTaskBar.style.width = taskRate + "%";
+    if(perfSubjectBar) perfSubjectBar.style.width = subjectRate + "%";
+    if(perfChapterBar) perfChapterBar.style.width = chapterRate + "%";
+    if(perfConsistency) perfConsistency.textContent = consistency + "%";
+
+    // ==========================
+    // COMPLETION BREAKDOWN
+    // ==========================
+
+    const breakdownTaskFill = document.getElementById("breakdownTaskFill");
+    const breakdownSubjectFill = document.getElementById("breakdownSubjectFill");
+    const breakdownChapterFill = document.getElementById("breakdownChapterFill");
+    const breakdownTaskPercent = document.getElementById("breakdownTaskPercent");
+    const breakdownSubjectPercent = document.getElementById("breakdownSubjectPercent");
+    const breakdownChapterPercent = document.getElementById("breakdownChapterPercent");
+
+    if(breakdownTaskFill) breakdownTaskFill.style.width = taskRate + "%";
+    if(breakdownSubjectFill) breakdownSubjectFill.style.width = subjectRate + "%";
+    if(breakdownChapterFill) breakdownChapterFill.style.width = chapterRate + "%";
+    if(breakdownTaskPercent) breakdownTaskPercent.textContent = taskRate + "%";
+    if(breakdownSubjectPercent) breakdownSubjectPercent.textContent = subjectRate + "%";
+    if(breakdownChapterPercent) breakdownChapterPercent.textContent = chapterRate + "%";
+
+    // ==========================
+    // SUBJECT PERFORMANCE (ranked)
+    // ==========================
+
+    const subjectRankList = document.getElementById("subjectRankList");
+
+    if(subjectRankList){
+
+        subjectRankList.innerHTML = "";
+
+        if(rankedSubjects.length === 0){
+
+            subjectRankList.innerHTML = `
+
+<div class="analyticsEmpty">
+
+📖
+
+<p>No subjects yet.</p>
+
+</div>
+
+`;
+
+        }
+
+        else{
+
+            rankedSubjects.forEach((subject, index) => {
+
+                let tagHtml = "";
+
+                if(rankedSubjects.length > 1){
+
+                    if(index === 0){
+
+                        tagHtml = `<span class="rankTag rankTagStrong">Strongest</span>`;
+
+                    }
+
+                    else if(index === rankedSubjects.length - 1 && subject.percent < 70){
+
+                        tagHtml = `<span class="rankTag rankTagWeak">Needs Attention</span>`;
+
+                    }
+
+                }
+
+                subjectRankList.innerHTML += `
+
+<div class="rankRow">
+
+<div class="rankRowTop">
+
+<span class="rankName">${subject.name}</span>
+
+${tagHtml}
+
+<span class="rankPercent">${subject.percent}%</span>
+
+</div>
+
+<div class="rankTrack">
+
+<div class="rankFill" style="width:${subject.percent}%"></div>
+
+</div>
+
+</div>
+
+`;
+
+            });
+
+        }
+
+    }
+
+    // ==========================
+    // WORKLOAD ANALYSIS
+    // ==========================
+
+    const workloadSubjectList = document.getElementById("workloadSubjectList");
+    const workloadTaskLine = document.getElementById("workloadTaskLine");
+    const workloadStatus = document.getElementById("workloadStatus");
+
+    if(workloadSubjectList){
+
+        workloadSubjectList.innerHTML = "";
+
+        if(subjectWorkload.length === 0){
+
+            workloadSubjectList.innerHTML = `
+
+<div class="analyticsEmpty">
+
+✅
+
+<p>No remaining subject workload.</p>
+
+</div>
+
+`;
+
+        }
+
+        else{
+
+            subjectWorkload.forEach(subject => {
+
+                const width = maxSubjectHours > 0
+                    ? Math.round((subject.hours/maxSubjectHours)*100)
+                    : 0;
+
+                workloadSubjectList.innerHTML += `
+
+<div class="workloadRow">
+
+<span class="workloadName">${subject.name}</span>
+
+<div class="workloadTrack">
+
+<div class="workloadFill" style="width:${width}%"></div>
+
+</div>
+
+<span class="workloadHours">${subject.hours} hrs</span>
+
+</div>
+
+`;
+
+            });
+
+        }
+
+    }
+
+    if(workloadTaskLine){
+
+        workloadTaskLine.textContent = pendingTasks.length > 0
+
+            ? `Plus ${pendingTaskHours} hrs across ${pendingTasks.length} pending task${pendingTasks.length === 1 ? "" : "s"}${highPriorityPending > 0 ? ` (${highPriorityPending} high priority)` : ""}.`
+
+            : "No pending tasks.";
+
+    }
+
+    if(workloadStatus){
+
+        workloadStatus.textContent = `${workloadLevel.emoji} ${workloadLevel.label}`;
+
+    }
+
+    // ==========================
+    // CURRENT PERFORMANCE
+    // (completed vs remaining snapshot)
+    // ==========================
+
+    const completionSummary = document.getElementById("completionSummary");
+
+    if(completionSummary){
+
+        completionSummary.innerHTML = `
+
+<div class="summaryTile">
+
+<span class="summaryLabel">Tasks</span>
+
+<span class="summaryValue">${summary.completedTasks} <small>completed</small></span>
+
+<span class="summarySub">${summary.pendingTasks} remaining</span>
+
+</div>
+
+<div class="summaryTile">
+
+<span class="summaryLabel">Subjects</span>
+
+<span class="summaryValue">${summary.completedSubjects} <small>completed</small></span>
+
+<span class="summarySub">${summary.activeSubjects} remaining</span>
+
+</div>
+
+<div class="summaryTile">
+
+<span class="summaryLabel">Chapters</span>
+
+<span class="summaryValue">${summary.completedChapters} <small>completed</small></span>
+
+<span class="summarySub">${summary.totalChapters - summary.completedChapters} remaining</span>
+
+</div>
+
+`;
+
+    }
+
+    // ==========================
+    // INSIGHTS
+    // ==========================
+
+    const analyticsInsightsList = document.getElementById("analyticsInsightsList");
+
+    if(analyticsInsightsList){
+
+        analyticsInsightsList.innerHTML = "";
+
+        buildAnalyticsInsights(report).forEach(insight => {
+
+            analyticsInsightsList.innerHTML += `<p class="insightLine">${insight}</p>`;
 
         });
 
     }
 
-
-
     // ==========================
-    // SUBJECT PROGRESS
+    // NEEDS ATTENTION
     // ==========================
 
-    subjectProgress.innerHTML="";
+    const attentionList = document.getElementById("attentionList");
 
-    if(subjects.length===0){
+    if(attentionList){
 
-        subjectProgress.innerHTML=`
+        attentionList.innerHTML = "";
 
-        <div class="analyticsEmpty">
+        buildAttentionItems(report).forEach(item => {
 
-        📖
-
-        <p>No subjects available.</p>
-
-        </div>
-
-        `;
-
-    }
-
-    else{
-
-        subjects.forEach(subject=>{
-
-            const percent = Math.round(
-
-                (subject.completed/
-
-                subject.total)*100
-
-            );
-
-            subjectProgress.innerHTML += `
-
-            <div class="subjectProgressRow">
-
-                <div class="subjectProgressHeader">
-
-                    <span>
-
-                    ${subject.name}
-
-                    </span>
-
-                    <span>
-
-                    ${percent}%
-
-                    </span>
-
-                </div>
-
-                <div class="subjectProgressBar">
-
-                    <div
-
-                    class="subjectProgressFill"
-
-                    style="width:${percent}%">
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            `;
+            attentionList.innerHTML += `<p class="attentionLine">${item}</p>`;
 
         });
-
-    }
-
-
-
-    // ==========================
-    // STUDY INSIGHT
-    // ==========================
-
-    if(totalTasks===0 && totalSubjects===0){
-
-        studyInsight.innerHTML =
-
-        "🌱 Start by creating a few tasks and adding your subjects. Your insights will appear here.";
-
-    }
-
-    else if(score>=85){
-
-        studyInsight.innerHTML=
-
-        "🏆 Outstanding! You're consistently staying ahead. Keep the momentum going.";
-
-    }
-
-    else if(score>=70){
-
-        studyInsight.innerHTML=
-
-        "✨ Great progress! Completing a few more tasks today will push your study score even higher.";
-
-    }
-
-    else if(score>=50){
-
-        studyInsight.innerHTML=
-
-        "📖 You're halfway there. Try finishing one pending task and one chapter today.";
-
-    }
-
-    else{
-
-        studyInsight.innerHTML=
-
-        "⚠ Your schedule needs some attention. Focus on completing today's tasks before adding new ones.";
 
     }
 
