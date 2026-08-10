@@ -3213,8 +3213,13 @@ padding:20px 16px;
 
 /* Stat cards: 1 column instead of 3 */
 .planner-info{
-grid-template-columns:1fr;
+grid-template-columns:1fr !important;
 gap:14px;
+}
+
+/* Restore card padding now that cards are full-width */
+.info-card{
+padding:20px 18px;
 }
 
 /* Input grid: 1 column instead of 3 */
