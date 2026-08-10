@@ -3192,3 +3192,58 @@ transition:opacity .35s ease, transform .35s ease;
 pointer-events:none;
 
 }
+/* ================= SUBJECTS PAGE — NARROW MOBILE (375–390px) ================= */
+
+@media(max-width:480px){
+
+/* Sidebar box-shadow bleeds 6px outside the box causing viewport overflow */
+.sidebar{
+box-shadow:none;
+}
+
+/* Tighten main content padding */
+.content{
+padding:20px 16px;
+}
+
+/* Sidebar full-width, reduce padding */
+.sidebar{
+padding:20px 16px;
+}
+
+/* Stat cards: 1 column instead of 3 */
+.planner-info{
+grid-template-columns:1fr;
+gap:14px;
+}
+
+/* Input grid: 1 column instead of 3 */
+.planner-grid{
+grid-template-columns:1fr;
+gap:14px;
+}
+
+/* Subject card: ensure it doesn't overflow */
+.subjectCard{
+padding:18px;
+min-width:0;
+}
+
+/* Subject name: allow wrapping, prevent overflow */
+.subjectTop{
+flex-wrap:wrap;
+gap:8px;
+}
+
+.subjectTop h2{
+font-size:19px;
+word-break:break-word;
+min-width:0;
+}
+
+/* Planner card: reduce padding */
+.planner-card{
+padding:18px;
+}
+
+}
