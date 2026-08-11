@@ -20,7 +20,9 @@ if(greeting){
 
 );
 
-    const greetingName = currentUser?.name?.split(" ")[0] || "";
+    const allSettings = JSON.parse(localStorage.getItem("allSettings")) || {};
+    const savedName = currentUser?.email && allSettings[currentUser.email]?.name;
+    const greetingName = (savedName || currentUser?.name || "").split(" ")[0];
 
 
 
@@ -192,7 +194,17 @@ const addButton=document.getElementById("addTask");
 
 if(addButton){
 
-
+// Apply saved default priority to the select on page load
+(function applyDefaultPriority(){
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+    if(!currentUser) return;
+    const allSettings = JSON.parse(localStorage.getItem("allSettings")) || {};
+    const saved = allSettings[currentUser.email];
+    const prioritySelect = document.getElementById("priority");
+    if(prioritySelect && saved && saved.defaultPriority){
+        prioritySelect.value = saved.defaultPriority;
+    }
+})();
 
 renderTasks();
 updatePlannerStats();
@@ -1374,6 +1386,8 @@ if(saveSettingsBtn){
 
 function saveSettings(){
 
+    const defaultPriorityEl = document.getElementById("defaultPriority");
+
     const settings = {
 
         name: document.getElementById("userName").value.trim(),
@@ -1382,7 +1396,9 @@ function saveSettings(){
 
         goal: document.getElementById("studyGoal").value,
 
-        studyTime: document.getElementById("studyTime").value
+        studyTime: document.getElementById("studyTime").value,
+
+        defaultPriority: defaultPriorityEl ? defaultPriorityEl.value : "Medium"
 
     };
 
@@ -1449,6 +1465,12 @@ function loadSettings(){
 
     document.getElementById("studyTime").value =
     settings.studyTime || "Morning";
+
+    const defaultPriorityEl = document.getElementById("defaultPriority");
+
+    if(defaultPriorityEl){
+        defaultPriorityEl.value = settings.defaultPriority || "Medium";
+    }
 
 }
 // =============================
@@ -2217,6 +2239,23 @@ function completeDashboardTask(planIndex){
 
 }
 
+function getDailyStudyGoal(){
+
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+
+    if(!currentUser) return 6;
+
+    const allSettings = JSON.parse(localStorage.getItem("allSettings")) || {};
+
+    const settings = allSettings[currentUser.email];
+
+    const parsed = settings && parseFloat(settings.goal);
+
+    // Fall back to 6 if unset or non-numeric — preserves existing behaviour
+    return (parsed && parsed > 0) ? parsed : 6;
+
+}
+
 function getWorkloadLevel(summary, plan){
 
     const highPriorityCount =
@@ -2224,13 +2263,22 @@ function getWorkloadLevel(summary, plan){
             item => item.type === "task" && item.priority === "High"
         ).length;
 
-    if(summary.totalEstimatedHours <= 2 && highPriorityCount === 0){
+    // Scale thresholds by the user's daily study goal.
+    // At the default goal of 6 hrs: light ≤ 2 hrs, moderate ≤ 5 hrs —
+    // identical to the previous hardcoded values, so no behaviour change
+    // for users with no saved setting.
+    const goal = getDailyStudyGoal();
+
+    const lightThreshold    = +(goal * (2 / 6)).toFixed(1);  // ~33 % of goal
+    const moderateThreshold = +(goal * (5 / 6)).toFixed(1);  // ~83 % of goal
+
+    if(summary.totalEstimatedHours <= lightThreshold && highPriorityCount === 0){
 
         return {emoji:"🟢", label:"Light"};
 
     }
 
-    if(summary.totalEstimatedHours <= 5 && highPriorityCount <= 2){
+    if(summary.totalEstimatedHours <= moderateThreshold && highPriorityCount <= 2){
 
         return {emoji:"🟡", label:"Moderate"};
 
