@@ -1703,6 +1703,7 @@ const deadlineScore=
 
 getDeadlineScore(subject.exam);
 
+// Difficulty multiplier for priority scoring (unchanged)
 let difficultyMultiplier=1.0;
 
 if(subject.difficulty==="Medium"){
@@ -1731,31 +1732,113 @@ const score=
 const examDate=new Date(subject.exam);
 examDate.setHours(0,0,0,0);
 
-let daysLeft=Math.round(
+const daysLeft=Math.round(
 
 (examDate-today)/(1000*60*60*24)
 
 );
 
-if(daysLeft<1){
+// ── CHAPTER DEADLINE ALGORITHM ──
+// studyFraction: portion of available days used for chapter work.
+// The remainder becomes the revision buffer automatically.
+// Hard subjects finish chapters earliest (most revision time).
+// Easy subjects can spread chapters more comfortably.
+const studyFraction=
+    subject.difficulty==="Hard"  ? 0.65 :
+    subject.difficulty==="Easy"  ? 0.75 :
+    0.80; // Medium
 
-daysLeft=1;
+// Edge case: exam is today or past
+if(daysLeft<=0){
+
+    const chapterTarget={
+        overloaded:true,
+        scheduleLabel:"Overloaded",
+        daysLeft:0,
+        chapterWindow:0,
+        revisionBuffer:0,
+        intervalDays:0,
+        nextTargetDate:null,
+        daysUntilNext:0,
+        overduePast:true
+    };
+
+    // estimatedHours kept as compatibility field only — no chapter-duration claim
+    const estimatedHours=1;
+
+    plan.push({
+        type:"subject",
+        title:subject.name,
+        score:Math.round(score),
+        deadline:subject.exam,
+        daysRemaining:getDaysRemaining(subject.exam),
+        estimatedHours,
+        completed:false,
+        difficulty:subject.difficulty,
+        remainingChapters:remaining,
+        completedChapters:subject.completed,
+        totalChapters:subject.total,
+        chapterTarget
+    });
+
+    return;
 
 }
 
-const chaptersToday=
+const chapterWindow=Math.floor(daysLeft*studyFraction);
+const revisionBuffer=daysLeft-chapterWindow;
+const intervalDays=chapterWindow>0 ? chapterWindow/remaining : 0;
+const overloaded=intervalDays<1;
 
-Math.max(
+let chapterTarget;
 
-1,
+if(overloaded){
 
-Math.ceil(remaining/daysLeft)
+    chapterTarget={
+        overloaded:true,
+        scheduleLabel:"Overloaded",
+        daysLeft,
+        chapterWindow,
+        revisionBuffer,
+        intervalDays,
+        nextTargetDate:null,
+        daysUntilNext:null,
+        overduePast:false
+    };
 
-);
+} else {
 
-const estimatedHours=
+    // targetDayN = round(intervalDays × N) — rounding per chapter,
+    // not on the interval, so all dates are guaranteed inside chapterWindow.
+    const daysUntilNext=Math.round(intervalDays*1);
 
-+((chaptersToday*45)/60).toFixed(1);
+    const nextTarget=new Date(today);
+    nextTarget.setDate(today.getDate()+daysUntilNext);
+
+    const scheduleLabel=
+        daysUntilNext<=3 ? "Tight" :
+        daysUntilNext<=7 ? "Manageable" :
+        "Comfortable";
+
+    chapterTarget={
+        overloaded:false,
+        scheduleLabel,
+        daysLeft,
+        chapterWindow,
+        revisionBuffer,
+        intervalDays:+intervalDays.toFixed(1),
+        nextTargetDate:nextTarget.toLocaleDateString("en-IN",{day:"numeric",month:"short"}),
+        daysUntilNext,
+        overduePast:false
+    };
+
+}
+
+// estimatedHours: kept as compatibility field for Dashboard/Analytics consumers.
+// Value is neutral — does NOT drive chapter scheduling.
+// Uses same remaining-chapters basis the old code used, but is clearly
+// a rough placeholder, not a per-chapter duration claim.
+const estimatedHours=+(remaining*0.75).toFixed(1);
 
 plan.push({
 
@@ -1781,7 +1864,7 @@ completedChapters:subject.completed,
 
 totalChapters:subject.total,
 
-chaptersToday
+chapterTarget
 
 });
 
@@ -1983,43 +2066,49 @@ return;
 
 plan.forEach(item=>{
 
-const goalLine=
-
-item.type==="subject"
-
-?`Today's Goal: <strong>${item.chaptersToday} chapter(s)</strong>`
-
-:`Due: <strong>${item.deadline}</strong>`;
+if(item.type==="task"){
 
 container.innerHTML+=`
-
 <div class="planCard">
+<h3>📝 ${item.title}</h3>
+<p class="planInfo">Due: <strong>${item.deadline}</strong></p>
+<p class="planInfo">${formatPriorityLabel(item.priority)}</p>
+</div>`;
 
-<h3>
+return;
 
-${item.type==="subject" ? "📖" : "📝"} ${item.title}
+}
 
-</h3>
+// Subject — use chapterTarget
+const ct=item.chapterTarget;
+let subjectBody="";
 
-<p class="planInfo">
+if(ct.overduePast){
+subjectBody=`
+<p class="planInfo">⚠️ <strong>Exam is today or past</strong></p>
+<p class="planInfo">${item.remainingChapters} chapter(s) still remaining</p>
+<p class="planInfo scheduleLabel overloaded">Schedule: Overloaded</p>`;
 
-${goalLine}
+} else if(ct.overloaded){
+subjectBody=`
+<p class="planInfo">${item.remainingChapters} chapters remaining · ${ct.chapterWindow} study days available</p>
+<p class="planInfo">⚠️ Multiple chapters needed per day to finish before exam</p>
+<p class="planInfo">Exam: <strong>${item.deadline}</strong></p>
+<p class="planInfo scheduleLabel overloaded">Schedule: Overloaded</p>`;
 
-</p>
+} else {
+subjectBody=`
+<p class="planInfo">Next chapter target: <strong>${ct.nextTargetDate}</strong> · ${ct.daysUntilNext} day(s) from now</p>
+<p class="planInfo">${item.remainingChapters} chapter(s) remaining · Exam: <strong>${item.deadline}</strong></p>
+<p class="planInfo">Revision buffer: ${ct.revisionBuffer} day(s)</p>
+<p class="planInfo scheduleLabel ${ct.scheduleLabel.toLowerCase()}">Schedule: ${ct.scheduleLabel}</p>`;
+}
 
-<div class="planHours">
-
-⏳
-
-${item.estimatedHours}
-
-hours recommended
-
-</div>
-
-</div>
-
-`;
+container.innerHTML+=`
+<div class="planCard">
+<h3>📖 ${item.title}</h3>
+${subjectBody}
+</div>`;
 
 });
 
@@ -2169,6 +2258,10 @@ function renderDashboardStudyPlan(plan){
         }
 
         // Subjects stay read-only, compact format
+        const ct = item.chapterTarget;
+        const subjectLine = ct.overloaded || ct.overduePast
+            ? `⚠️ ${item.remainingChapters} ch · Schedule: ${ct.scheduleLabel}`
+            : `Next target: <strong>${ct.nextTargetDate}</strong> · ${ct.scheduleLabel}`;
 
         container.innerHTML += `
 
@@ -2180,9 +2273,9 @@ function renderDashboardStudyPlan(plan){
 
 </h3>
 
-<p class="planInfo">Today's Goal: <strong>${item.chaptersToday} chapter(s)</strong></p>
+<p class="planInfo">${subjectLine}</p>
 
-<p class="planInfo">⏱ ${formatHoursLabel(item.estimatedHours)}</p>
+<p class="planInfo">${item.remainingChapters} chapter(s) remaining · Exam: ${item.deadline}</p>
 
 </div>
 
@@ -2468,10 +2561,16 @@ function renderDashboardFocus(plan){
 
     const item = plan[0];
 
-    const goalLine =
-        item.type === "subject"
-        ? `<p class="planInfo">Today's Chapter Goal: <strong>${item.chaptersToday} chapter(s)</strong></p>`
-        : "";
+    let goalLine = "";
+    if(item.type === "subject"){
+        const ct = item.chapterTarget;
+        if(ct.overloaded || ct.overduePast){
+            goalLine = `<p class="planInfo">⚠️ Schedule: <strong>${ct.scheduleLabel}</strong> · ${item.remainingChapters} chapter(s) remaining</p>`;
+        } else {
+            goalLine = `<p class="planInfo">Next chapter target: <strong>${ct.nextTargetDate}</strong> · ${ct.daysUntilNext} day(s) from now</p>
+<p class="planInfo">Schedule: <strong>${ct.scheduleLabel}</strong> · Revision buffer: ${ct.revisionBuffer} day(s)</p>`;
+        }
+    }
 
     container.innerHTML = `
 
@@ -2500,16 +2599,6 @@ Priority Score: <strong>${item.score}</strong>
 </p>
 
 ${goalLine}
-
-<div class="planHours">
-
-⏳
-
-${item.estimatedHours}
-
-hours recommended
-
-</div>
 
 `;
 
