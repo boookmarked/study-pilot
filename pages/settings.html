@@ -135,20 +135,16 @@
         </div>
       </div>
 
-      <div class="sp-row sp-row--disabled">
+      <div class="sp-row">
         <div class="sp-row-info">
           <span class="sp-row-title">Default Estimated Hours</span>
-          <span class="sp-row-desc">Prefill hours when adding tasks</span>
+          <span class="sp-row-desc">Prefill estimated hours when adding a new task (0.25 – 12)</span>
         </div>
         <div class="sp-row-control sp-row-control--narrow">
-          <input type="number" placeholder="1" disabled>
+          <input type="number" id="defaultTaskHours" placeholder="1"
+                 min="0.25" max="12" step="0.25">
           <span class="sp-unit">hrs</span>
         </div>
-      </div>
-
-      <div class="sp-coming-soon">
-        <span class="material-symbols-rounded">schedule</span>
-        Default Estimated Hours will be connected in a future update.
       </div>
     </div>
   </section>

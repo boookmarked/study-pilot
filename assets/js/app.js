@@ -194,15 +194,23 @@ const addButton=document.getElementById("addTask");
 
 if(addButton){
 
-// Apply saved default priority to the select on page load
+// Apply saved defaults (priority + estimated hours) to the task form on page load
 (function applyDefaultPriority(){
     const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
     if(!currentUser) return;
     const allSettings = JSON.parse(localStorage.getItem("allSettings")) || {};
     const saved = allSettings[currentUser.email];
+    if(!saved) return;
+
     const prioritySelect = document.getElementById("priority");
-    if(prioritySelect && saved && saved.defaultPriority){
+    if(prioritySelect && saved.defaultPriority){
         prioritySelect.value = saved.defaultPriority;
+    }
+
+    const hoursInput = document.getElementById("taskHours");
+    if(hoursInput && saved.defaultTaskHours !== "" &&
+       saved.defaultTaskHours != null){
+        hoursInput.value = saved.defaultTaskHours;
     }
 })();
 
@@ -561,9 +569,9 @@ function buildSubjectCardsHtml(order){
 
     order.forEach(({subject,index})=>{
 
-        const progress=Math.round(
+        const progress=Math.min(100,Math.max(0,Math.round(
             (subject.completed/subject.total)*100
-        );
+        )));
 
         const completed = isSubjectCompleted(subject);
 
@@ -892,7 +900,7 @@ function updateSubjectStats(){
         }
 
         progress+=
-        (subject.completed/subject.total)*100;
+        Math.min(100,Math.max(0,(subject.completed/subject.total)*100));
 
     });
 
@@ -946,7 +954,7 @@ function buildAnalyticsReport(){
             name: subject.name,
 
             percent: subject.total > 0
-                ? Math.round((subject.completed/subject.total)*100)
+                ? Math.min(100,Math.max(0,Math.round((subject.completed/subject.total)*100)))
                 : 0,
 
             remainingChapters: subject.total - subject.completed
@@ -1398,7 +1406,15 @@ function saveSettings(){
 
         studyTime: document.getElementById("studyTime").value,
 
-        defaultPriority: defaultPriorityEl ? defaultPriorityEl.value : "Medium"
+        defaultPriority: defaultPriorityEl ? defaultPriorityEl.value : "Medium",
+
+        defaultTaskHours: (()=>{
+            const el = document.getElementById("defaultTaskHours");
+            if(!el || el.value === "") return "";
+            const v = parseFloat(el.value);
+            if(isNaN(v) || v < 0.25 || v > 12) return "";
+            return v;
+        })()
 
     };
 
@@ -1472,6 +1488,13 @@ function loadSettings(){
         defaultPriorityEl.value = settings.defaultPriority || "Medium";
     }
 
+    const defaultTaskHoursEl = document.getElementById("defaultTaskHours");
+
+    if(defaultTaskHoursEl && settings.defaultTaskHours !== "" &&
+       settings.defaultTaskHours != null){
+        defaultTaskHoursEl.value = settings.defaultTaskHours;
+    }
+
 }
 // =============================
 // CLEAR TASKS
@@ -1538,7 +1561,21 @@ if(resetBtn){
 
         )){
 
-            localStorage.clear();
+            localStorage.removeItem("tasks");
+            localStorage.removeItem("subjects");
+
+            const _cu = JSON.parse(sessionStorage.getItem("currentUser"));
+            if(_cu && _cu.email){
+                const _as = JSON.parse(
+                    localStorage.getItem("allSettings")
+                ) || {};
+                delete _as[_cu.email];
+                if(Object.keys(_as).length > 0){
+                    localStorage.setItem("allSettings", JSON.stringify(_as));
+                } else {
+                    localStorage.removeItem("allSettings");
+                }
+            }
 
             alert("StudyPilot has been reset.");
 
@@ -1976,7 +2013,7 @@ overallSubjectProgress:
 
 totalChapters>0
 
-?Math.round((completedChapters/totalChapters)*100)
+?Math.min(100,Math.max(0,Math.round((completedChapters/totalChapters)*100)))
 
 :0,
 
@@ -1984,13 +2021,13 @@ overallProgress:
 
 (tasks.length+totalChapters)>0
 
-?Math.round(
+?Math.min(100,Math.max(0,Math.round(
 
 ((completedTasks+completedChapters)/
 
 (tasks.length+totalChapters))*100
 
-)
+)))
 
 :0,
 
