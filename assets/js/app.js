@@ -121,10 +121,34 @@ if(quote){
 
 
 // ===============================
+// USER-SCOPED STORAGE KEYS
+// ===============================
+
+const _currentUserEmail = (() => {
+    const u = JSON.parse(sessionStorage.getItem("currentUser"));
+    return u && u.email ? u.email : null;
+})();
+
+const _tasksKey    = _currentUserEmail ? `tasks_${_currentUserEmail}`    : "tasks";
+const _subjectsKey = _currentUserEmail ? `subjects_${_currentUserEmail}` : "subjects";
+
+// Legacy migration: copy old flat keys to user-scoped keys on first login
+if(_currentUserEmail){
+    if(!localStorage.getItem(_tasksKey) && localStorage.getItem("tasks")){
+        localStorage.setItem(_tasksKey, localStorage.getItem("tasks"));
+        localStorage.removeItem("tasks");
+    }
+    if(!localStorage.getItem(_subjectsKey) && localStorage.getItem("subjects")){
+        localStorage.setItem(_subjectsKey, localStorage.getItem("subjects"));
+        localStorage.removeItem("subjects");
+    }
+}
+
+// ===============================
 // TASK STORAGE
 // ===============================
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let tasks = JSON.parse(localStorage.getItem(_tasksKey)) || [];
 
 // Dashboard rendering (task-list, progress, deadlines) now lives
 // further down, after buildStudyPlan() is defined — see
@@ -219,14 +243,14 @@ updatePlannerStats();
 
 window.addEventListener("storage", (event)=>{
 
-    if(event.key !== "tasks" && event.key !== "subjects"){
+    if(event.key !== _tasksKey && event.key !== _subjectsKey){
 
         return;
 
     }
 
-    tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    subjects = JSON.parse(localStorage.getItem("subjects")) || [];
+    tasks = JSON.parse(localStorage.getItem(_tasksKey)) || [];
+    subjects = JSON.parse(localStorage.getItem(_subjectsKey)) || [];
 
     renderTasks();
     updatePlannerStats();
@@ -272,7 +296,7 @@ estimatedHours: isNaN(estimatedHours) ? null : estimatedHours
 
 localStorage.setItem(
 
-"tasks",
+_tasksKey,
 
 JSON.stringify(tasks)
 
@@ -340,7 +364,7 @@ function deleteTask(index){
         tasks.splice(currentIndex,1);
 
         localStorage.setItem(
-            "tasks",
+            _tasksKey,
             JSON.stringify(tasks)
         );
 
@@ -370,7 +394,7 @@ tasks[index].completed = !tasks[index].completed;
 
 localStorage.setItem(
 
-"tasks",
+_tasksKey,
 
 JSON.stringify(tasks)
 
@@ -466,7 +490,7 @@ function updateProgress(){
 // SUBJECTS
 // ======================================
 
-let subjects = JSON.parse(localStorage.getItem("subjects")) || [];
+let subjects = JSON.parse(localStorage.getItem(_subjectsKey)) || [];
 
 // Safe point for the Planner's automatic plan generation:
 // both `tasks` and `subjects` are now initialized, and
@@ -525,7 +549,7 @@ if(addSubjectBtn){
         });
 
         localStorage.setItem(
-            "subjects",
+            _subjectsKey,
             JSON.stringify(subjects)
         );
 
@@ -792,7 +816,7 @@ function increaseChapter(index){
     subjects[index].completed++;
 
     localStorage.setItem(
-        "subjects",
+        _subjectsKey,
         JSON.stringify(subjects)
     );
 
@@ -846,7 +870,7 @@ function deleteSubject(index){
         subjects.splice(currentIndex,1);
 
         localStorage.setItem(
-            "subjects",
+            _subjectsKey,
             JSON.stringify(subjects)
         );
 
@@ -1508,7 +1532,7 @@ if(clearTasksBtn){
 
         if(confirm("Delete all tasks?")){
 
-            localStorage.removeItem("tasks");
+            localStorage.removeItem(_tasksKey);
 
             tasks=[];
 
@@ -1519,9 +1543,6 @@ if(clearTasksBtn){
     };
 
 }
-
-
-
 // =============================
 // CLEAR SUBJECTS
 // =============================
@@ -1534,7 +1555,7 @@ if(clearSubjectsBtn){
 
         if(confirm("Delete all subjects?")){
 
-            localStorage.removeItem("subjects");
+            localStorage.removeItem(_subjectsKey);
 
             subjects=[];
 
@@ -1561,8 +1582,8 @@ if(resetBtn){
 
         )){
 
-            localStorage.removeItem("tasks");
-            localStorage.removeItem("subjects");
+            localStorage.removeItem(_tasksKey);
+            localStorage.removeItem(_subjectsKey);
 
             const _cu = JSON.parse(sessionStorage.getItem("currentUser"));
             if(_cu && _cu.email){
@@ -2361,7 +2382,7 @@ function completeDashboardTask(planIndex){
     tasks[taskIndex].completed = true;
 
     localStorage.setItem(
-        "tasks",
+        _tasksKey,
         JSON.stringify(tasks)
     );
 
