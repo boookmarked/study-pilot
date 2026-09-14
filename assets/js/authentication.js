@@ -46,6 +46,11 @@ if(email === admin && password === adminpass){
 
     sessionStorage.setItem("loggedIn","true");
 
+    sessionStorage.setItem("currentUser", JSON.stringify({
+        name: "Admin",
+        email: "admin"
+    }));
+
     window.location.href = "pages/dashboard.html";
 
     return;
@@ -90,12 +95,15 @@ sessionStorage.setItem(
 
 );
 
-// Store current logged in user
+// Store current logged in user (password excluded from session)
 sessionStorage.setItem(
 
     "currentUser",
 
-    JSON.stringify(foundUser)
+    JSON.stringify({
+        name: foundUser.name,
+        email: foundUser.email
+    })
 
 );
 

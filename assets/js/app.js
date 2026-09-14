@@ -521,10 +521,12 @@ if(addSubjectBtn){
             name==="" ||
             exam==="" ||
             isNaN(total) ||
-            isNaN(completed)
+            total < 1 ||
+            isNaN(completed) ||
+            completed < 0
         ){
 
-            alert("Please fill all fields.");
+            alert("Please fill all fields. Total chapters must be at least 1.");
 
             return;
 
@@ -993,16 +995,16 @@ function buildAnalyticsReport(){
 
             name: subject.name,
 
-            hours: +(((subject.total - subject.completed) * 45) / 60).toFixed(1)
+            remainingChapters: subject.total - subject.completed
 
         }))
 
-        .filter(s => s.hours > 0)
+        .filter(s => s.remainingChapters > 0)
 
-        .sort((a,b) => b.hours - a.hours);
+        .sort((a,b) => b.remainingChapters - a.remainingChapters);
 
-    const maxSubjectHours = subjectWorkload.length > 0
-        ? subjectWorkload[0].hours
+    const maxSubjectWork = subjectWorkload.length > 0
+        ? subjectWorkload[0].remainingChapters
         : 0;
 
     const pendingTasks = tasks.filter(t => !t.completed);
@@ -1030,7 +1032,7 @@ function buildAnalyticsReport(){
         chapterRate,
         rankedSubjects,
         subjectWorkload,
-        maxSubjectHours,
+        maxSubjectWork,
         pendingTasks,
         pendingTaskHours,
         highPriorityPending,
@@ -1151,7 +1153,7 @@ function buildAttentionItems(report){
 
         items.push(
 
-            `${heaviest.name} has the largest remaining workload (${heaviest.hours} hrs)`
+            `${heaviest.name} has the most remaining work (${heaviest.remainingChapters} chapter${heaviest.remainingChapters === 1 ? "" : "s"} left)`
 
         );
 
@@ -1178,7 +1180,7 @@ function loadAnalytics(){
         chapterRate,
         rankedSubjects,
         subjectWorkload,
-        maxSubjectHours,
+        maxSubjectWork,
         pendingTasks,
         pendingTaskHours,
         highPriorityPending,
@@ -1315,8 +1317,8 @@ ${tagHtml}
 
             subjectWorkload.forEach(subject => {
 
-                const width = maxSubjectHours > 0
-                    ? Math.round((subject.hours/maxSubjectHours)*100)
+                const width = maxSubjectWork > 0
+                    ? Math.round((subject.remainingChapters/maxSubjectWork)*100)
                     : 0;
 
                 workloadSubjectList.innerHTML += `
@@ -1331,7 +1333,7 @@ ${tagHtml}
 
 </div>
 
-<span class="workloadHours">${subject.hours} hrs</span>
+<span class="workloadHours">${subject.remainingChapters} ch</span>
 
 </div>
 
@@ -2000,7 +2002,7 @@ const upcomingDeadlinesCount=
 
 plan.filter(
 
-item=>item.daysRemaining<=7
+item=>item.daysRemaining>=0 && item.daysRemaining<=7
 
 ).length;
 
