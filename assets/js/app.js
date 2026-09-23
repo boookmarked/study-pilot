@@ -131,6 +131,7 @@ const _currentUserEmail = (() => {
 
 const _tasksKey    = _currentUserEmail ? `tasks_${_currentUserEmail}`    : "tasks";
 const _subjectsKey = _currentUserEmail ? `subjects_${_currentUserEmail}` : "subjects";
+const _focusHistoryKey = _currentUserEmail ? `focusHistory_${_currentUserEmail}` : "focusHistory";
 
 // Legacy migration: copy old flat keys to user-scoped keys on first login
 if(_currentUserEmail){
@@ -2073,104 +2074,419 @@ summary
 }
 
 // ======================================
+// DAILY FOCUS ENGINE
+// Builds today's small, prioritized focus
+// list from the full plan[] produced by
+// buildStudyPlan(). Does not touch the
+// chapterTarget algorithm — only reads it.
+// ======================================
+
+function _dateKey(d){
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+
+    return `${y}-${m}-${day}`;
+
+}
+
+// Capacity model: Daily Study Goal -> number of focused study slots.
+// A slot is just a focused block, not a claim about chapter duration.
+function getCapacitySlots(dailyGoal){
+
+    if(dailyGoal<=2) return 1;
+    if(dailyGoal<=5) return 2;
+    if(dailyGoal<=8) return 3;
+
+    return 4;
+
+}
+
+// Small pace-risk factor derived from the existing chapterTarget schedule label.
+function getPaceRiskScore(chapterTarget){
+
+    if(chapterTarget.scheduleLabel==="Overloaded") return 40;
+    if(chapterTarget.scheduleLabel==="Tight") return 25;
+    if(chapterTarget.scheduleLabel==="Manageable") return 10;
+
+    return 0; // Comfortable
+
+}
+
+// Difficulty is only a small balancing factor, never a reason to
+// force hard + easy subjects together.
+function getDifficultyBonus(difficulty){
+
+    if(difficulty==="Hard") return 5;
+    if(difficulty==="Medium") return 2;
+
+    return 0;
+
+}
+
+// Focus history: per-subject record of the last confirmed prior-day
+// focus date, used for cadence/spacing and the recency penalty.
+// { "<subject name>": { last:"YYYY-MM-DD", prior:"YYYY-MM-DD" } }
+function getFocusHistory(){
+
+    return JSON.parse(localStorage.getItem(_focusHistoryKey)) || {};
+
+}
+
+function saveFocusHistory(history){
+
+    localStorage.setItem(_focusHistoryKey, JSON.stringify(history));
+
+}
+
+function daysSinceDate(dateStr, todayDate){
+
+    if(!dateStr) return null;
+
+    const d = new Date(dateStr);
+    d.setHours(0,0,0,0);
+
+    return Math.round((todayDate-d)/(1000*60*60*24));
+
+}
+
+// Cadence/recency term: eases off subjects studied very recently,
+// gives a small nudge to subjects never focused, and gradually
+// brings back subjects that haven't been touched in a while so
+// distant exams still reappear periodically.
+function getCadenceTerm(daysSince){
+
+    if(daysSince===null) return 8;
+    if(daysSince<=0) return -10;
+    if(daysSince===1) return -4;
+    if(daysSince<=3) return 0;
+    if(daysSince<=6) return 6;
+
+    return 12;
+
+}
+
+// Builds today's focus from the full plan[]. Uses one global ranking
+// across subjects rather than independently scheduling every subject.
+function buildDailyFocus(plan){
+
+    const today=new Date();
+    today.setHours(0,0,0,0);
+
+    const todayStr=_dateKey(today);
+
+    const taskItems=plan.filter(item=>item.type==="task");
+    const subjectItems=plan.filter(item=>item.type==="subject");
+
+    // ---------- CAPACITY ----------
+
+    const dailyGoal=getDailyStudyGoal();
+    const capacitySlots=getCapacitySlots(dailyGoal);
+
+    // ---------- TASK SELECTION ----------
+    // plan is already sorted by score (deadline+priority+workload) desc,
+    // so filtering preserves that priority order.
+
+    const urgentTasks=taskItems.filter(
+        t=>t.daysRemaining<=2 || t.priority==="High"
+    );
+
+    const selectedTasks=urgentTasks.slice(0,capacitySlots);
+
+    const subjectSlots=Math.max(0,capacitySlots-selectedTasks.length);
+
+    // ---------- GLOBAL SUBJECT RANKING ----------
+
+    const history=getFocusHistory();
+
+    const scoredSubjects=subjectItems.map(subject=>{
+
+        const ct=subject.chapterTarget;
+
+        const deadlineScore=getDeadlineScore(subject.deadline);
+        const paceRiskScore=getPaceRiskScore(ct);
+        const remainingWeight=Math.min(subject.remainingChapters*0.5,10);
+        const difficultyBonus=getDifficultyBonus(subject.difficulty);
+
+        const entry=history[subject.title] || {last:null,prior:null};
+        const daysSince=daysSinceDate(entry.prior,today);
+        const cadenceTerm=getCadenceTerm(daysSince);
+
+        const focusScore=
+            deadlineScore+paceRiskScore+remainingWeight+difficultyBonus+cadenceTerm;
+
+        return {...subject,focusScore};
+
+    });
+
+    scoredSubjects.sort((a,b)=>{
+
+        if(b.focusScore!==a.focusScore){
+            return b.focusScore-a.focusScore;
+        }
+
+        return new Date(a.deadline)-new Date(b.deadline);
+
+    });
+
+    const selectedSubjects=scoredSubjects.slice(0,subjectSlots);
+
+    // ---------- PERSIST CADENCE HISTORY (shifts once per calendar day) ----------
+
+    selectedSubjects.forEach(subject=>{
+
+        const entry=history[subject.title] || {last:null,prior:null};
+
+        if(entry.last!==todayStr){
+            entry.prior=entry.last;
+            entry.last=todayStr;
+        }
+
+        history[subject.title]=entry;
+
+    });
+
+    saveFocusHistory(history);
+
+    // ---------- TODAY'S FOCUS ----------
+
+    const todayFocus=[...selectedTasks,...selectedSubjects];
+
+    // ---------- SUPPORTING CATEGORIES ----------
+
+    const urgentSubjects=subjectItems.filter(s=>s.daysRemaining<=7);
+
+    const atRiskSubjects=subjectItems.filter(s=>
+        s.chapterTarget.scheduleLabel==="Tight" ||
+        s.chapterTarget.scheduleLabel==="Overloaded"
+    );
+
+    const emergencySubjects=subjectItems.filter(s=>
+        s.daysRemaining<=3 &&
+        (s.chapterTarget.scheduleLabel==="Tight" || s.chapterTarget.scheduleLabel==="Overloaded")
+    );
+
+    const emergencyMode=emergencySubjects.length>0;
+    const urgentSubjectOverflow=emergencySubjects.length>subjectSlots;
+    const globalOverload=urgentSubjects.length>subjectSlots || atRiskSubjects.length>=2;
+
+    const selectedSubjectTitles=new Set(selectedSubjects.map(s=>s.title));
+
+    const needsAttention=urgentSubjects.filter(
+        s=>!selectedSubjectTitles.has(s.title)
+    );
+
+    return {
+
+        todayFocus,
+        capacitySlots,
+        subjectSlots,
+        taskSlotsUsed:selectedTasks.length,
+        urgentSubjects,
+        atRiskSubjects,
+        needsAttention,
+        emergencySubjects,
+        emergencyMode,
+        urgentSubjectOverflow,
+        globalOverload
+
+    };
+
+}
+
+// ======================================
 // SMART STUDY SCHEDULER — RENDER
 // (display only, reads buildStudyPlan())
 // ======================================
 
-function renderStudyPlan(){
+function subjectCardHtml(item){
 
-const container =
-document.getElementById("studyPlan");
+    const ct=item.chapterTarget;
+    let subjectBody="";
 
-if(!container) return;
+    if(ct.overduePast){
+        subjectBody=`
+<p class="planInfo">⚠️ <strong>Exam is today or past</strong></p>
+<p class="planInfo">${item.remainingChapters} chapter(s) still remaining</p>
+<p class="planInfo scheduleLabel overloaded">Schedule: Overloaded</p>`;
 
-container.innerHTML="";
+    } else if(ct.overloaded){
+        subjectBody=`
+<p class="planInfo">${item.remainingChapters} chapters remaining · ${ct.chapterWindow} study days available</p>
+<p class="planInfo">⚠️ Multiple chapters needed per day to finish before exam</p>
+<p class="planInfo">Exam: <strong>${item.deadline}</strong></p>
+<p class="planInfo scheduleLabel overloaded">Schedule: Overloaded</p>`;
 
-if(tasks.length===0 && subjects.length===0){
+    } else {
+        subjectBody=`
+<p class="planInfo">Next chapter target: <strong>${ct.nextTargetDate}</strong> · ${ct.daysUntilNext} day(s) from now</p>
+<p class="planInfo">${item.remainingChapters} chapter(s) remaining · Exam: <strong>${item.deadline}</strong></p>
+<p class="planInfo">Revision buffer: ${ct.revisionBuffer} day(s)</p>
+<p class="planInfo scheduleLabel ${ct.scheduleLabel.toLowerCase()}">Schedule: ${ct.scheduleLabel}</p>`;
+    }
 
-container.innerHTML=`
-
-<div class="empty">
-
-📚
-
-<p>No tasks or subjects found.</p>
-
-</div>
-
-`;
-
-return;
-
-}
-
-const {plan}=buildStudyPlan();
-
-if(plan.length===0){
-
-container.innerHTML=`
-
-<div class="empty">
-
-🎉
-
-<p>Everything is completed.</p>
-
-</div>
-
-`;
-
-return;
+    return `
+<div class="planCard">
+<h3>📖 ${item.title}</h3>
+${subjectBody}
+</div>`;
 
 }
 
-plan.forEach(item=>{
+function taskCardHtml(item){
 
-if(item.type==="task"){
-
-container.innerHTML+=`
+    return `
 <div class="planCard">
 <h3>📝 ${item.title}</h3>
 <p class="planInfo">Due: <strong>${item.deadline}</strong></p>
 <p class="planInfo">${formatPriorityLabel(item.priority)}</p>
 </div>`;
 
-return;
-
 }
 
-// Subject — use chapterTarget
-const ct=item.chapterTarget;
-let subjectBody="";
+// ---------- SUBJECT PREPARATION PLAN ----------
+// Full longer-term chapter-target plan, one card per incomplete subject.
 
-if(ct.overduePast){
-subjectBody=`
-<p class="planInfo">⚠️ <strong>Exam is today or past</strong></p>
-<p class="planInfo">${item.remainingChapters} chapter(s) still remaining</p>
-<p class="planInfo scheduleLabel overloaded">Schedule: Overloaded</p>`;
+function renderSubjectPreparationPlan(subjectItems){
 
-} else if(ct.overloaded){
-subjectBody=`
-<p class="planInfo">${item.remainingChapters} chapters remaining · ${ct.chapterWindow} study days available</p>
-<p class="planInfo">⚠️ Multiple chapters needed per day to finish before exam</p>
-<p class="planInfo">Exam: <strong>${item.deadline}</strong></p>
-<p class="planInfo scheduleLabel overloaded">Schedule: Overloaded</p>`;
+    const container=document.getElementById("studyPlan");
 
-} else {
-subjectBody=`
-<p class="planInfo">Next chapter target: <strong>${ct.nextTargetDate}</strong> · ${ct.daysUntilNext} day(s) from now</p>
-<p class="planInfo">${item.remainingChapters} chapter(s) remaining · Exam: <strong>${item.deadline}</strong></p>
-<p class="planInfo">Revision buffer: ${ct.revisionBuffer} day(s)</p>
-<p class="planInfo scheduleLabel ${ct.scheduleLabel.toLowerCase()}">Schedule: ${ct.scheduleLabel}</p>`;
-}
+    if(!container) return;
 
-container.innerHTML+=`
-<div class="planCard">
-<h3>📖 ${item.title}</h3>
-${subjectBody}
+    if(subjectItems.length===0){
+
+        container.innerHTML=`
+<div class="empty">
+📚
+<p>No subject preparation plan yet.</p>
+<span>Add a subject to get started.</span>
 </div>`;
 
-});
+        return;
+
+    }
+
+    container.innerHTML=subjectItems.map(subjectCardHtml).join("");
+
+}
+
+// ---------- TODAY'S FOCUS ----------
+
+function renderTodayFocus(dailyFocus){
+
+    const container=document.getElementById("todayFocusList");
+
+    if(!container) return;
+
+    if(dailyFocus.todayFocus.length===0){
+
+        const message=
+            (tasks.length===0 && subjects.length===0)
+            ? "No tasks or subjects found."
+            : "Nothing urgent needs focus today — check your Subject Preparation Plan or Task list.";
+
+        container.innerHTML=`
+<div class="empty">
+🌱
+<p>${message}</p>
+</div>`;
+
+        return;
+
+    }
+
+    const capacityLine=`
+<p class="focusCapacityLine">
+Today's capacity: ${dailyFocus.capacitySlots} slot(s)
+· ${dailyFocus.taskSlotsUsed} for tasks, ${dailyFocus.subjectSlots} for subjects
+</p>`;
+
+    const cards=dailyFocus.todayFocus.map(item=>
+        item.type==="task" ? taskCardHtml(item) : subjectCardHtml(item)
+    ).join("");
+
+    container.innerHTML=capacityLine+cards;
+
+}
+
+// ---------- EMERGENCY WARNING ----------
+
+function renderEmergencyBanner(dailyFocus){
+
+    const section=document.getElementById("emergencySection");
+    const container=document.getElementById("emergencyBanner");
+
+    if(!section || !container) return;
+
+    if(!dailyFocus.emergencyMode){
+
+        section.style.display="none";
+        container.innerHTML="";
+
+        return;
+
+    }
+
+    section.style.display="";
+
+    const names=dailyFocus.emergencySubjects.map(s=>s.title).join(", ");
+
+    const overflowLine=dailyFocus.urgentSubjectOverflow
+        ? `<p class="planInfo">High-risk work exceeds today's normal subject capacity — the highest-priority subjects were selected above; the rest are listed under Needs Attention.</p>`
+        : "";
+
+    container.innerHTML=`
+<div class="emergencyBanner">
+<p><strong>${dailyFocus.emergencySubjects.length}</strong> subject(s) are within 3 days of their exam and already behind pace: ${names}.</p>
+${overflowLine}
+</div>`;
+
+}
+
+// ---------- NEEDS ATTENTION ----------
+
+function renderNeedsAttention(dailyFocus){
+
+    const section=document.getElementById("needsAttentionSection");
+    const container=document.getElementById("needsAttentionList");
+
+    if(!section || !container) return;
+
+    if(dailyFocus.needsAttention.length===0){
+
+        section.style.display="none";
+        container.innerHTML="";
+
+        return;
+
+    }
+
+    section.style.display="";
+
+    container.innerHTML=dailyFocus.needsAttention.map(s=>`
+<div class="attentionItem">
+<strong>${s.title}</strong> — exam in ${s.daysRemaining} day(s) · Schedule: ${s.chapterTarget.scheduleLabel}
+</div>`).join("");
+
+}
+
+function renderStudyPlan(){
+
+    const container=document.getElementById("studyPlan");
+
+    if(!container) return;
+
+    const {plan}=buildStudyPlan();
+
+    const dailyFocus=buildDailyFocus(plan);
+
+    const subjectItems=plan.filter(item=>item.type==="subject");
+
+    renderSubjectPreparationPlan(subjectItems);
+    renderTodayFocus(dailyFocus);
+    renderEmergencyBanner(dailyFocus);
+    renderNeedsAttention(dailyFocus);
 
 }
 // ======================================
@@ -2592,7 +2908,7 @@ function renderDashboardDeadlines(plan){
 
 }
 
-function renderDashboardFocus(plan){
+function renderDashboardFocus(dailyFocus){
 
     const container =
         document.getElementById("focusCardBody");
@@ -2601,7 +2917,7 @@ function renderDashboardFocus(plan){
         return;
     }
 
-    if(plan.length === 0){
+    if(dailyFocus.todayFocus.length === 0){
 
         container.innerHTML = `
 
@@ -2609,7 +2925,7 @@ function renderDashboardFocus(plan){
 
 🎉
 
-<p>Nothing left for today.</p>
+<p>Nothing urgent needs focus today.</p>
 
 </div>
 
@@ -2619,48 +2935,41 @@ function renderDashboardFocus(plan){
 
     }
 
-    const item = plan[0];
+    const emergencyLine = dailyFocus.emergencyMode
+        ? `<p class="planInfo">⚠️ ${dailyFocus.emergencySubjects.length} subject(s) are close to exam and behind pace.</p>`
+        : "";
 
-    let goalLine = "";
-    if(item.type === "subject"){
-        const ct = item.chapterTarget;
-        if(ct.overloaded || ct.overduePast){
-            goalLine = `<p class="planInfo">⚠️ Schedule: <strong>${ct.scheduleLabel}</strong> · ${item.remainingChapters} chapter(s) remaining</p>`;
-        } else {
-            goalLine = `<p class="planInfo">Next chapter target: <strong>${ct.nextTargetDate}</strong> · ${ct.daysUntilNext} day(s) from now</p>
-<p class="planInfo">Schedule: <strong>${ct.scheduleLabel}</strong> · Revision buffer: ${ct.revisionBuffer} day(s)</p>`;
+    const itemsHtml = dailyFocus.todayFocus.map(item=>{
+
+        if(item.type === "task"){
+
+            return `
+<div class="focusItem">
+<h3>📝 ${item.title}</h3>
+<p class="planInfo">Due: <strong>${item.deadline}</strong> · ${formatPriorityLabel(item.priority)}</p>
+</div>`;
+
         }
-    }
 
-    container.innerHTML = `
+        const ct = item.chapterTarget;
 
-<h3>
+        const goalLine = (ct.overloaded || ct.overduePast)
+            ? `⚠️ Schedule: <strong>${ct.scheduleLabel}</strong> · ${item.remainingChapters} chapter(s) remaining`
+            : `Next target: <strong>${ct.nextTargetDate}</strong> · Schedule: ${ct.scheduleLabel}`;
 
-${item.type === "subject" ? "📖" : "📝"} ${item.title}
+        return `
+<div class="focusItem">
+<h3>📖 ${item.title}</h3>
+<p class="planInfo">${goalLine}</p>
+</div>`;
 
-</h3>
+    }).join("");
 
-<p class="planInfo">
+    const needsAttentionLine = dailyFocus.needsAttention.length > 0
+        ? `<p class="planInfo">${dailyFocus.needsAttention.length} more urgent subject(s) need attention — see Planner.</p>`
+        : "";
 
-Type: <strong>${item.type === "subject" ? "Subject" : "Task"}</strong>
-
-</p>
-
-<p class="planInfo">
-
-Deadline: <strong>${item.deadline}</strong>
-
-</p>
-
-<p class="planInfo">
-
-Priority Score: <strong>${item.score}</strong>
-
-</p>
-
-${goalLine}
-
-`;
+    container.innerHTML = emergencyLine + itemsHtml + needsAttentionLine;
 
 }
 
@@ -2866,13 +3175,15 @@ function renderDashboard(){
 
     const {plan, summary} = buildStudyPlan();
 
+    const dailyFocus = buildDailyFocus(plan);
+
     updateProgress();
 
     renderDashboardSummary(summary);
     renderDashboardStudyPlan(plan);
     renderDashboardWorkload(summary, plan);
     renderDashboardDeadlines(plan);
-    renderDashboardFocus(plan);
+    renderDashboardFocus(dailyFocus);
     renderDashboardInsights(plan, summary);
     renderDashboardRecentlyCompleted();
     renderDashboardQuickStatus(plan, summary);

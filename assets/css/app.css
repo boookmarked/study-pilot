@@ -2241,13 +2241,100 @@ width:100%;
 SMART STUDY PLAN
 =========================== */
 
-#studyPlan{
+#studyPlan,
+.planStack{
 
 display:flex;
 
 flex-direction:column;
 
 gap:18px;
+
+}
+
+/* ===========================
+DAILY FOCUS (Planner page)
+=========================== */
+
+.focusCapacityLine{
+
+color:var(--muted);
+
+font-size:13px;
+
+margin-bottom:4px;
+
+}
+
+.emergencyBanner{
+
+background:#FCEBEA;
+
+border-left:6px solid #C0392B;
+
+padding:16px 20px;
+
+border-radius:14px;
+
+color:#7A1F1F;
+
+}
+
+.emergencyBanner p{
+
+margin:4px 0;
+
+}
+
+.attentionItem{
+
+padding:12px 16px;
+
+border-left:4px solid var(--gold);
+
+background:#FFF8E8;
+
+border-radius:12px;
+
+color:#5C3B73;
+
+font-size:14px;
+
+margin-bottom:10px;
+
+}
+
+.attentionItem:last-child{
+
+margin-bottom:0;
+
+}
+
+/* Dashboard Today's Focus card — multiple items */
+
+.focusItem{
+
+padding:14px 0;
+
+border-bottom:1px solid #F1E2D3;
+
+}
+
+.focusItem:last-child{
+
+border-bottom:none;
+
+padding-bottom:0;
+
+}
+
+.dashboard-home .focusHighlight #focusCardBody .focusItem h3{
+
+color:#5C3B73;
+
+margin-bottom:6px;
+
+font-size:18px;
 
 }
 

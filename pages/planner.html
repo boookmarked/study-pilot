@@ -225,20 +225,58 @@ Create Task
 </section>
 
 
+<section class="planner-card" id="emergencySection" style="display:none;">
+
+    <h2>⚠️ Emergency Warning</h2>
+
+    <div id="emergencyBanner"></div>
+
+</section>
+
 <section class="planner-card">
 
-    <h2>Today's Study Plan</h2>
+    <h2>🎯 Today's Focus</h2>
 
-    <div id="studyPlan">
+    <div id="todayFocusList" class="planStack">
 
         <div class="empty">
 
             🌱
 
-            <p>No study plan yet.</p>
+            <p>No focus plan yet.</p>
 
             <span>
                 Add a task or subject to get started.
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="planner-card" id="needsAttentionSection" style="display:none;">
+
+    <h2>Needs Attention</h2>
+
+    <div id="needsAttentionList" class="planStack"></div>
+
+</section>
+
+<section class="planner-card">
+
+    <h2>Subject Preparation Plan</h2>
+
+    <div id="studyPlan" class="planStack">
+
+        <div class="empty">
+
+            📚
+
+            <p>No subject preparation plan yet.</p>
+
+            <span>
+                Add a subject to get started.
             </span>
 
         </div>
