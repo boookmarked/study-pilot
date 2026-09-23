@@ -2777,31 +2777,69 @@ function getPreferredStudyTime(){
 
 }
 
-function getStudyWindowLabel(studyTime){
+// Formats a minutes-from-midnight value (may exceed 1440, i.e. cross
+// past midnight) as a 12-hour clock time like "3:00 AM".
+function formatClockTime(totalMinutesFromMidnight){
 
-    const windows = {
+    const mins=((totalMinutesFromMidnight%1440)+1440)%1440;
 
-        Morning:"8:00 AM – 11:00 AM",
+    const h24=Math.floor(mins/60);
+    const m=mins%60;
 
-        Afternoon:"12:00 PM – 3:00 PM",
+    const period=h24<12 ? "AM" : "PM";
 
-        Evening:"6:00 PM – 9:00 PM",
+    let h12=h24%12;
+    if(h12===0) h12=12;
 
-        Night:"9:00 PM – 12:00 AM"
+    const mStr=m===0 ? "00" : String(m).padStart(2,"0");
 
-    };
-
-    return windows[studyTime] || windows.Morning;
+    return `${h12}:${mStr} ${period}`;
 
 }
 
-function renderDashboardWorkload(summary, plan){
+// Preferred Study Window is an availability/preference window only —
+// it never changes the Daily Focus Engine's capacity-slot calculation
+// (getCapacitySlots), which continues to be driven solely by the
+// Daily Study Goal. This function only affects the displayed time
+// range so it stays wide enough to actually fit that goal.
+function getStudyWindowLabel(studyTime, dailyGoal){
+
+    // Start hour (24h clock) for each named period — unchanged from
+    // the original fixed windows.
+    const startHours={
+
+        Morning:8,
+        Afternoon:12,
+        Evening:18,
+        Night:21
+
+    };
+
+    const startHour24=
+        startHours[studyTime]!==undefined ? startHours[studyTime] : startHours.Morning;
+
+    // The original windows were all 3 hours long — keep that as a
+    // floor so small goals still see a sensible range, and extend
+    // the window so it can contain the full Daily Study Goal.
+    const BASE_WINDOW_HOURS=3;
+
+    const durationHours=
+        Math.max(BASE_WINDOW_HOURS, dailyGoal || BASE_WINDOW_HOURS);
+
+    const startMinutes=startHour24*60;
+    const endMinutes=startMinutes+Math.round(durationHours*60);
+
+    return `${formatClockTime(startMinutes)} – ${formatClockTime(endMinutes)}`;
+
+}
+
+function renderDashboardWorkload(summary, plan, dailyFocus){
 
     const hoursEl =
         document.getElementById("dashTotalHours");
 
-    const sessionsEl =
-        document.getElementById("dashSessions");
+    const focusCountEl =
+        document.getElementById("dashTodayFocusCount");
 
     const levelEl =
         document.getElementById("workloadLevel");
@@ -2809,12 +2847,18 @@ function renderDashboardWorkload(summary, plan){
     const windowEl =
         document.getElementById("preferredWindow");
 
-    if(!hoursEl || !sessionsEl){
+    if(!hoursEl || !focusCountEl){
         return;
     }
 
     hoursEl.textContent = summary.totalEstimatedHours;
-    sessionsEl.textContent = summary.recommendedStudySessions;
+
+    // Reflects the Daily Focus Engine's actual today's-focus count —
+    // not the old plan.length "recommended sessions" figure.
+    const focusCount = dailyFocus.todayFocus.length;
+
+    focusCountEl.textContent =
+        `${focusCount} study block${focusCount === 1 ? "" : "s"}`;
 
     if(levelEl){
 
@@ -2828,9 +2872,10 @@ function renderDashboardWorkload(summary, plan){
     if(windowEl){
 
         const studyTime = getPreferredStudyTime();
+        const dailyGoal = getDailyStudyGoal();
 
         windowEl.innerHTML =
-            `${studyTime}<br>${getStudyWindowLabel(studyTime)}`;
+            `${studyTime}<br>${getStudyWindowLabel(studyTime, dailyGoal)}`;
 
     }
 
@@ -3181,7 +3226,7 @@ function renderDashboard(){
 
     renderDashboardSummary(summary);
     renderDashboardStudyPlan(plan);
-    renderDashboardWorkload(summary, plan);
+    renderDashboardWorkload(summary, plan, dailyFocus);
     renderDashboardDeadlines(plan);
     renderDashboardFocus(dailyFocus);
     renderDashboardInsights(plan, summary);
