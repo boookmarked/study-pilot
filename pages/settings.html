@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Settings | StudyPilot</title>
+<meta name="description" content="Customize your StudyPilot study preferences, daily goals, and account settings.">
+<link rel="icon" type="image/png" href="../assets/logo/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Settings | StudyPilot">
+<meta property="og:description" content="Customize your StudyPilot study preferences, daily goals, and account settings.">
+<meta property="og:image" content="../assets/logo/logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Settings | StudyPilot">
+<meta name="twitter:description" content="Customize your StudyPilot study preferences, daily goals, and account settings.">
+<meta name="twitter:image" content="../assets/logo/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
@@ -16,7 +26,7 @@
 <!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="logo-section">
-    <img src="../assets/logo/logo_white.png" class="sidebar-logo">
+    <img src="../assets/logo/logo_white.png" class="sidebar-logo" alt="StudyPilot Logo">
     <h2>StudyPilot</h2>
   </div>
   <nav>
@@ -53,7 +63,7 @@
           <span class="sp-row-desc">Shown on your dashboard greeting</span>
         </div>
         <div class="sp-row-control">
-          <input type="text" id="userName" placeholder="Your Name">
+          <input type="text" id="userName" placeholder="Your Name" aria-label="Display Name">
         </div>
       </div>
 
@@ -63,7 +73,7 @@
           <span class="sp-row-desc">Linked to your StudyPilot account</span>
         </div>
         <div class="sp-row-control">
-          <input type="email" id="userEmail" placeholder="you@example.com">
+          <input type="email" id="userEmail" placeholder="you@example.com" aria-label="Email Address">
         </div>
       </div>
     </div>
@@ -83,7 +93,7 @@
           <span class="sp-row-desc">Target hours per day used in workload calculations</span>
         </div>
         <div class="sp-row-control sp-row-control--narrow">
-          <input type="number" id="studyGoal" min="1" max="15" placeholder="6">
+          <input type="number" id="studyGoal" min="1" max="15" placeholder="6" aria-label="Daily Study Goal in hours">
           <span class="sp-unit">hrs / day</span>
         </div>
       </div>
@@ -94,7 +104,7 @@
           <span class="sp-row-desc">Your best focus time — used to build your daily plan</span>
         </div>
         <div class="sp-row-control sp-row-control--narrow">
-          <select id="studyTime">
+          <select id="studyTime" aria-label="Preferred Study Window">
             <option>Morning</option>
             <option>Afternoon</option>
             <option>Evening</option>
@@ -127,7 +137,7 @@
           <span class="sp-row-desc">Pre-selected priority when creating a new task</span>
         </div>
         <div class="sp-row-control sp-row-control--narrow">
-          <select id="defaultPriority">
+          <select id="defaultPriority" aria-label="Default Task Priority">
             <option>Low</option>
             <option selected>Medium</option>
             <option>High</option>
@@ -141,7 +151,7 @@
           <span class="sp-row-desc">Prefill estimated hours when adding a new task (0.25 – 12)</span>
         </div>
         <div class="sp-row-control sp-row-control--narrow">
-          <input type="number" id="defaultTaskHours" placeholder="1"
+          <input type="number" id="defaultTaskHours" placeholder="1" aria-label="Default Estimated Hours"
                  min="0.25" max="12" step="0.25">
           <span class="sp-unit">hrs</span>
         </div>

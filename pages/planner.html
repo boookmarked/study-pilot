@@ -8,6 +8,20 @@
 
 <title>Planner | StudyPilot</title>
 
+<meta name="description" content="Plan your daily study focus and manage tasks with StudyPilot's smart planner.">
+
+<link rel="icon" type="image/png" href="../assets/logo/logo.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Planner | StudyPilot">
+<meta property="og:description" content="Plan your daily study focus and manage tasks with StudyPilot's smart planner.">
+<meta property="og:image" content="../assets/logo/logo.png">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Planner | StudyPilot">
+<meta name="twitter:description" content="Plan your daily study focus and manage tasks with StudyPilot's smart planner.">
+<meta name="twitter:image" content="../assets/logo/logo.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -30,7 +44,8 @@
 <div class="logo-section">
 
 <img src="../assets/logo/logo_white.png"
-class="sidebar-logo">
+class="sidebar-logo"
+alt="StudyPilot Logo">
 
 <h2>StudyPilot</h2>
 
@@ -122,7 +137,7 @@ Every small task completed is one less thing weighing on your mind.
 
 <div class="input-group">
 
-<label>Task Name</label>
+<label for="taskTitle">Task Name</label>
 
 <input
 id="taskTitle"
@@ -135,7 +150,7 @@ placeholder="Finish Mini Project">
 
 <div class="input-group">
 
-<label>Due Date</label>
+<label for="taskDate">Due Date</label>
 
 <input
 id="taskDate"
@@ -147,7 +162,7 @@ type="date">
 
 <div class="input-group">
 
-<label>Priority</label>
+<label for="priority">Priority</label>
 
 <select id="priority">
 
@@ -165,7 +180,7 @@ type="date">
 
 <div class="input-group">
 
-<label>Estimated Study Hours (optional)</label>
+<label for="taskHours">Estimated Study Hours (optional)</label>
 
 <input
 id="taskHours"
