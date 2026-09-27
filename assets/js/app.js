@@ -132,6 +132,7 @@ const _currentUserEmail = (() => {
 const _tasksKey    = _currentUserEmail ? `tasks_${_currentUserEmail}`    : "tasks";
 const _subjectsKey = _currentUserEmail ? `subjects_${_currentUserEmail}` : "subjects";
 const _focusHistoryKey = _currentUserEmail ? `focusHistory_${_currentUserEmail}` : "focusHistory";
+const _activityLogKey = _currentUserEmail ? `activityLog_${_currentUserEmail}` : "activityLog";
 
 // Legacy migration: copy old flat keys to user-scoped keys on first login
 if(_currentUserEmail){
@@ -143,6 +144,34 @@ if(_currentUserEmail){
         localStorage.setItem(_subjectsKey, localStorage.getItem("subjects"));
         localStorage.removeItem("subjects");
     }
+}
+
+// ===============================
+// ACTIVITY LOG
+// Records completion events (tasks + individual chapters) so the
+// Dashboard's "Recently Completed" can show both, newest first.
+// ===============================
+
+function getActivityLog(){
+
+    return JSON.parse(localStorage.getItem(_activityLogKey)) || [];
+
+}
+
+function logActivity(activity){
+
+    const log = getActivityLog();
+
+    log.unshift(activity); // newest first
+
+    localStorage.setItem(
+
+        _activityLogKey,
+
+        JSON.stringify(log.slice(0,20)) // keep only the latest 20
+
+    );
+
 }
 
 // ===============================
@@ -400,6 +429,16 @@ _tasksKey,
 JSON.stringify(tasks)
 
 );
+
+if(tasks[index].completed){
+
+    logActivity({
+        type:"task",
+        title:tasks[index].title,
+        date:_dateKey(new Date())
+    });
+
+}
 
 const card = document.querySelector(
     `.taskCard[data-task-key="${index}"]`
@@ -822,6 +861,13 @@ function increaseChapter(index){
         _subjectsKey,
         JSON.stringify(subjects)
     );
+
+    logActivity({
+        type:"chapter",
+        subject:subjects[index].name,
+        chapterNumber:subjects[index].completed,
+        date:_dateKey(new Date())
+    });
 
     updateSubjectStats();
 
@@ -2704,6 +2750,12 @@ function completeDashboardTask(planIndex){
         JSON.stringify(tasks)
     );
 
+    logActivity({
+        type:"task",
+        title:tasks[taskIndex].title,
+        date:_dateKey(new Date())
+    });
+
     renderDashboard();
 
 }
@@ -3093,24 +3145,6 @@ function renderDashboardInsights(plan, summary){
 
 }
 
-function getRecentlyCompleted(){
-
-    const completedTasks =
-        tasks
-        .filter(t => t.completed)
-        .map(t => ({title:t.title, type:"task"}));
-
-    const completedSubjects =
-        subjects
-        .filter(isSubjectCompleted)
-        .map(s => ({title:s.name, type:"subject"}));
-
-    return [...completedTasks, ...completedSubjects]
-        .reverse()
-        .slice(0,5);
-
-}
-
 function renderDashboardRecentlyCompleted(){
 
     const container =
@@ -3122,7 +3156,8 @@ function renderDashboardRecentlyCompleted(){
 
     container.innerHTML = "";
 
-    const recent = getRecentlyCompleted();
+    // Activity log is already stored newest-first (logActivity unshifts).
+    const recent = getActivityLog().slice(0,5);
 
     if(recent.length === 0){
 
@@ -3142,15 +3177,17 @@ function renderDashboardRecentlyCompleted(){
 
     }
 
-    recent.forEach(item=>{
+    recent.forEach(activity=>{
+
+        const line = activity.type === "chapter"
+            ? `📖 ${activity.subject} — Chapter ${activity.chapterNumber} completed`
+            : `✓ ${activity.title} — Task`;
 
         container.innerHTML += `
 
 <div class="deadline">
 
-<strong>✓ ${item.title}</strong>
-
-<p>${item.type === "subject" ? "Subject" : "Task"}</p>
+<strong>${line}</strong>
 
 </div>
 
